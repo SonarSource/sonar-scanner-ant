@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Example Ant Build with Sonar" default="rebuild" xmlns:sonar="antlib:org.sonar.ant">
+
+  <property name="src.dir" location="./src" />
+  <property name="result.dir" location="./target" />
+  <property name="result.classes.dir" location="${result.dir}/classes" />
+
+  <!-- Import Sonar Ant tasks -->
+  <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+    <!-- TODO remove hardcoded version -->
+    <classpath path="../../../target/sonar-ant-task-0.1-SNAPSHOT.jar" />
+  </taskdef>
+
+  <target name="clean">
+    <delete dir="${result.dir}" />
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${result.classes.dir}" />
+    <javac srcdir="${src.dir}" destdir="${result.classes.dir}" debug="true" />
+  </target>
+
+  <target name="sonar">
+    <sonar:sonar>
+    </sonar:sonar>
+  </target>
+
+  <target name="rebuild" depends="clean,compile,sonar" />
+
+</project>

@@ -29,6 +29,7 @@ public class SonarTask extends Task {
   public void execute() throws BuildException {
     // TODO Auto-generated method stub
     super.execute();
+    System.out.println("Hello world");
   }
 
 }
