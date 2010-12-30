@@ -20,33 +20,33 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.EnvironmentConfiguration;
+import org.apache.commons.configuration.SystemConfiguration;
+import org.sonar.batch.Batch;
 
-import java.io.IOException;
+public class Bootstraper {
 
-public class SonarTask extends Task {
-  private String url = "http://localhost:9000";
-
-  public void setUrl(String url) {
-    this.url = url;
+  public void start() {
+    initLogging();
+    executeBatch();
   }
 
-  @Override
-  public void execute() throws BuildException {
-    try {
-      ServerMetadata server = new ServerMetadata(url);
+  private void executeBatch() {
+    Batch batch = new Batch(getInitialConfiguration());
+    batch.execute();
+  }
 
-      System.out.println("Sonar version: " + server.getVersion());
+  private void initLogging() {
+    // TODO
+  }
 
-      if (server.supportsAnt()) {
-        new Bootstraper().start();
-      } else {
-        throw new BuildException("Sonar " + server.getVersion() + " does not support Ant");
-      }
-    } catch (IOException e) {
-      throw new BuildException("Failed to execute Sonar", e);
-    }
+  private Configuration getInitialConfiguration() {
+    CompositeConfiguration configuration = new CompositeConfiguration();
+    configuration.addConfiguration(new SystemConfiguration());
+    configuration.addConfiguration(new EnvironmentConfiguration());
+    return configuration;
   }
 
 }
