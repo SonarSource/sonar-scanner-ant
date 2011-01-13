@@ -23,30 +23,32 @@ package org.sonar.ant;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import java.io.IOException;
-
 public class SonarTask extends Task {
-  private String url = "http://localhost:9000";
+  private String serverUrl = "http://localhost:9000";
+  private ProjectElement projectElement = new ProjectElement();
 
-  public void setUrl(String url) {
-    this.url = url;
+  public void setServerUrl(String url) {
+    this.serverUrl = url;
+  }
+
+  public ProjectElement createProject() {
+    return projectElement;
   }
 
   @Override
   public void execute() throws BuildException {
     try {
-      ServerMetadata server = new ServerMetadata(url);
+      ServerMetadata server = new ServerMetadata(serverUrl);
 
       System.out.println("Sonar version: " + server.getVersion());
 
       if (server.supportsAnt()) {
-        new Bootstraper().start();
+        new Bootstraper().start(projectElement);
       } else {
         throw new BuildException("Sonar " + server.getVersion() + " does not support Ant");
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new BuildException("Failed to execute Sonar", e);
     }
   }
-
 }
