@@ -18,18 +18,19 @@
 
   <target name="sonar">
     <!-- Create isolated ClassLoader -->
-    <taskdef name="isolateSonarClassloader" classname="org.sonar.ant.IsolateClassloader">
+    <taskdef name="bootstrapSonar" classname="org.sonar.ant.BootstrapTask">
       <!-- TODO remove hardcoded version -->
       <classpath path="../../../target/sonar-ant-task-0.1-SNAPSHOT.jar" />
     </taskdef>
 
-    <isolateSonarClassloader />
+    <mkdir dir="./sonar-work" />
+    <bootstrapSonar server="http://localhost:9000" workDir="./sonar-work" />
 
     <!-- Import Sonar Ant tasks -->
     <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" loaderRef="sonar" />
 
     <!-- Execute Sonar -->
-    <sonar:sonar serverUrl="http://localhost:9000">
+    <sonar:sonar>
       <project key="org.example:example" version="0.1-SNAPSHOT">
         <sources>
           <path location="${src.dir}"/>
@@ -43,6 +44,8 @@
       <property name="sonar.projectDate" value="2010-10-15" />
       -->
     </sonar:sonar>
+
+    <delete dir="./sonar-work" />
   </target>
 
   <target name="rebuild" depends="clean,compile,sonar" />
