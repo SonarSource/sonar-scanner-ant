@@ -59,6 +59,9 @@ public class BootstrapTask extends Task {
     this.name = name;
   }
 
+  /**
+   * @param workDir directory to which bootstrapper will download files
+   */
   public void setWorkDir(File workDir) {
     this.workDir = workDir;
   }
