@@ -30,13 +30,11 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.platform.Environment;
-import org.sonar.api.project.ProjectDefinition;
-import org.sonar.api.project.ProjectDirectory;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.*;
+import org.sonar.batch.Batch;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.batch.bootstrapper.Reactor;
 
 import java.io.File;
 import java.io.InputStream;
@@ -64,23 +62,19 @@ public class SonarTask extends Task {
   /**
    * Transforms {@link ProjectElement} into {@link ProjectDefinition}.
    */
-  private DefaultProjectDefinition defineProject(ProjectElement project) {
-    DefaultProjectDefinition definition = new DefaultProjectDefinition();
+  private ProjectDefinition defineProject(ProjectElement project) {
+    File baseDir = new File("/tmp/ant-test"); // TODO hard-coded value
+    Configuration properties = new BaseConfiguration();
+    ProjectDefinition definition = new ProjectDefinition(baseDir, properties);
 
-    definition.setKey(project.getKey());
+    properties.setProperty("project.key", project.getKey());
 
-    definition.setSonarWorkingDirectory(new File("/tmp/ant-test")); // TODO hard-coded value
-
+    // TODO directories
     for (Iterator<?> i = project.createSources().iterator(); i.hasNext();) {
       Resource resource = (Resource) i.next();
       if (resource.isDirectory() && resource instanceof FileResource) {
         File dir = ((FileResource) resource).getFile();
-
-        DefaultProjectDirectory directory = new DefaultProjectDirectory();
-        directory.setKind(ProjectDirectory.Kind.SOURCES);
-        directory.setLocation(dir);
-
-        definition.addDir(directory);
+        definition.addSourceDir(dir.getAbsolutePath());
       }
     }
 
@@ -89,8 +83,7 @@ public class SonarTask extends Task {
 
   private void executeBatch() throws Exception {
     Reactor reactor = new Reactor(defineProject(projectElement));
-    Batch batch = new Batch(getInitialConfiguration(),
-        Environment.ANT, new FakeMavenPluginExecutor(), reactor);
+    Batch batch = new Batch(getInitialConfiguration(), Environment.ANT, reactor);
     batch.execute();
   }
 
@@ -122,15 +115,6 @@ public class SonarTask extends Task {
     projectProperties.setProperty("sonar.core.codeCoveragePlugin", "none");
     configuration.addConfiguration(projectProperties);
     return configuration;
-  }
-
-  public static class FakeMavenPluginExecutor implements MavenPluginExecutor {
-    public void execute(Project project, String goal) {
-    }
-
-    public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
-      return handler;
-    }
   }
 
 }

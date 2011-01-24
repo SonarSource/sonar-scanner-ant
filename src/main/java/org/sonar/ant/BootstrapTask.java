@@ -24,7 +24,7 @@ import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
-import org.sonar.bootstrapper.Bootstrapper;
+import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
 import java.util.List;
@@ -72,13 +72,13 @@ public class BootstrapTask extends Task {
     return result;
   }
 
-  private Path setupClasspath(Bootstrapper bootstrapper) {
+  private Path setupClasspath(BatchDownloader bootstrapper) {
     Path classpath = new Path(null);
 
     // Add JAR with Sonar Ant tasks - it's a Jar which contains this class
     classpath.add(newPath(BootstrapTask.class.getProtectionDomain().getCodeSource().getLocation().getPath()));
 
-    List<File> files = bootstrapper.downloadFiles(workDir);
+    List<File> files = bootstrapper.downloadBatchFiles(workDir);
     for (File file : files) {
       classpath.add(newPath(file.getAbsolutePath()));
     }
@@ -88,7 +88,7 @@ public class BootstrapTask extends Task {
 
   @Override
   public void execute() {
-    Bootstrapper bootstrapper = new Bootstrapper(serverUrl);
+    BatchDownloader bootstrapper = new BatchDownloader(serverUrl);
 
     String serverVersion = bootstrapper.getServerVersion();
     System.out.println("Sonar version: " + serverVersion);
