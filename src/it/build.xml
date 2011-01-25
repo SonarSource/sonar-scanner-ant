@@ -4,6 +4,7 @@
   <target name="analyze-ant-projects">
     <execant dir="clover" />
     <execant dir="cobertura" />
+    <execant dir="many-source-dirs" />
   </target>
 
   <macrodef name="execant">

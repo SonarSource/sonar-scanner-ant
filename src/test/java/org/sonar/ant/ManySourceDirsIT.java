@@ -26,11 +26,11 @@ import org.sonar.wsclient.services.ResourceQuery;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CloverIT extends AbstractIT {
+public class ManySourceDirsIT extends AbstractIT {
 
   @Override
   public String getProjectKey() {
-    return "org.sonar.ant.tests:clover";
+    return "org.sonar.ant.tests:many-source-dirs";
   }
 
   @Test
@@ -40,18 +40,10 @@ public class CloverIT extends AbstractIT {
 
   @Test
   public void projectMetrics() {
-    assertThat(getProjectMeasure("line_coverage").getValue(), is(50.0));
-    assertThat(getProjectMeasure("lines_to_cover").getValue(), is(4.0));
-    assertThat(getProjectMeasure("uncovered_lines").getValue(), is(2.0));
-
-    assertThat(getProjectMeasure("branch_coverage").getValue(), is(50.0));
-    assertThat(getProjectMeasure("conditions_to_cover").getValue(), is(2.0));
-    assertThat(getProjectMeasure("uncovered_conditions").getValue(), is(1.0));
-
-    assertThat(getProjectMeasure("coverage").getValue(), is(50.0));
-
-    assertThat(getProjectMeasure("tests").getValue(), is(2.0));
-    assertThat(getProjectMeasure("test_success_density").getValue(), is(50.0));
+    assertThat(getProjectMeasure("packages").getValue(), is(1.0));
+    assertThat(getProjectMeasure("files").getValue(), is(2.0));
+    assertThat(getProjectMeasure("classes").getValue(), is(2.0));
+    assertThat(getProjectMeasure("functions").getValue(), is(2.0));
   }
 
 }

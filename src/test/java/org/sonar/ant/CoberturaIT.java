@@ -20,29 +20,22 @@
 
 package org.sonar.ant;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CoberturaIT {
+public class CoberturaIT extends AbstractIT {
 
-  private static Sonar sonar;
-
-  private static final String PROJECT = "org.sonar.ant.tests:cobertura";
-
-  @BeforeClass
-  public static void buildServer() {
-    sonar = Sonar.create("http://localhost:9000");
+  @Override
+  protected String getProjectKey() {
+    return "org.sonar.ant.tests:cobertura";
   }
 
   @Test
   public void projectIsAnalyzed() {
-    assertThat(sonar.find(new ResourceQuery(PROJECT)).getVersion(), is("0.1-SNAPSHOT"));
+    assertThat(sonar.find(new ResourceQuery(getProjectKey())).getVersion(), is("0.1-SNAPSHOT"));
   }
 
   @Test
@@ -59,10 +52,6 @@ public class CoberturaIT {
 
     assertThat(getProjectMeasure("tests").getValue(), is(2.0));
     assertThat(getProjectMeasure("test_success_density").getValue(), is(50.0));
-  }
-
-  private Measure getProjectMeasure(String metricKey) {
-    return sonar.find(ResourceQuery.createForMetrics(PROJECT, metricKey)).getMeasure(metricKey);
   }
 
 }
