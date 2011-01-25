@@ -37,10 +37,7 @@
 
     <!-- Execute Sonar -->
     <sonar:sonar workDir="${build.dir}/sonar-boot">
-      <project>
-        <property key="sonar.projectKey" value="org.sonar.ant.tests:classpath" />
-        <property key="sonar.projectVersion" value="0.1-SNAPSHOT" />
-        <property key="project.build.directory" value="${build.dir}" />
+      <project key="org.sonar.ant.tests:classpath" version="0.1-SNAPSHOT">
         <property key="sonar.profile" value="classpath" />
 
         <sources>

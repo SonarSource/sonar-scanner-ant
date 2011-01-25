@@ -25,11 +25,11 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ManySourceDirsIT extends AbstractIT {
+public class CustomLayoutIT extends AbstractIT {
 
   @Override
   public String getProjectKey() {
-    return "org.sonar.ant.tests:many-source-dirs";
+    return "org.sonar.ant.tests:custom-layout";
   }
 
   @Test

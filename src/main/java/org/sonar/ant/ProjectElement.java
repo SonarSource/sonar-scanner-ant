@@ -30,11 +30,29 @@ public class ProjectElement {
 
   private Environment properties = new Environment();
 
+  private String key;
+  private String version;
   private Path sources;
   private Path binaries;
 
   public ProjectElement(Project antProject) {
     this.antProject = antProject;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  public String getVersion() {
+    return version;
   }
 
   public void addProperty(Environment.Variable property) {

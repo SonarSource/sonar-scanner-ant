@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ant-many-source-dirs" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+<project name="ant-custom-layout" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
 
-  <property name="lib.dir" value="../ant-libs"/>
+  <property name="build.dir" value="build"/>
 
-  <property name="lib.junit.dir" value="${lib.dir}/junit"/>
-
-  <property name="build.dir" value="target"/>
-
-  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="classes.dir" value="${build.dir}/bin"/>
 
   <path id="classpath">
-    <fileset dir="${lib.junit.dir}" includes="*.jar"/>
   </path>
 
   <target name="clean" description="Remove all files created by the build process.">
@@ -40,10 +35,9 @@
 
     <!-- Execute Sonar -->
     <sonar:sonar workDir="${build.dir}/sonar-boot">
-      <project>
-        <property key="sonar.projectKey" value="org.sonar.ant.tests:many-source-dirs" />
-        <property key="sonar.projectVersion" value="0.1-SNAPSHOT" />
+      <project key="org.sonar.ant.tests:custom-layout" version="0.1-SNAPSHOT">
         <property key="project.build.directory" value="${build.dir}" />
+        <property key="project.build.outputDirectory" value="${classes.dir}" />
 
         <sources>
           <path location="src1"/>

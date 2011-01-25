@@ -4,7 +4,7 @@
   <target name="analyze-ant-projects">
     <execant dir="clover" />
     <execant dir="cobertura" />
-    <execant dir="many-source-dirs" />
+    <execant dir="custom-layout" />
     <execant dir="classpath" />
   </target>
 

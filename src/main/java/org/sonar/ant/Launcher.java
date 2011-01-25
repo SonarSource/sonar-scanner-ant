@@ -30,6 +30,7 @@ import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Environment;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.Batch;
@@ -66,6 +67,9 @@ public class Launcher {
     ProjectDefinition definition = new ProjectDefinition(task.getProject().getBaseDir(), properties);
 
     // Properties
+    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, project.getKey());
+    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, project.getVersion());
+
     Enumeration<Variable> e = project.getProperties().getVariablesVector().elements();
     while (e.hasMoreElements()) {
       Variable property = e.nextElement();
