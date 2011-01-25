@@ -26,13 +26,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * Special {@link ClassLoader} to execute Sonar from Ant task.
+ * Special {@link URLClassLoader} to execute Sonar from Ant task.
  */
 public class SonarClassLoader extends URLClassLoader {
+
   public SonarClassLoader(ClassLoader parent) {
     super(new URL[0], parent);
   }
 
+  /**
+   * Appends the specified File to the list of URLs to search for classes and resources.
+   */
   public void addFile(File file) {
     try {
       addURL(file.toURI().toURL());
@@ -41,42 +45,56 @@ public class SonarClassLoader extends URLClassLoader {
     }
   }
 
+  /**
+   * {@inheritDoc} Visibility of a method has been relaxed to public.
+   */
   @Override
   public void addURL(URL url) {
     super.addURL(url);
   }
 
+  /**
+   * {@inheritDoc} Visibility of a method has been relaxed to public.
+   */
   @Override
   public Class<?> findClass(String name) throws ClassNotFoundException {
     return super.findClass(name);
   }
 
+  /**
+   * @return true, if class can be loaded from parent ClassLoader
+   */
+  static boolean canLoadFromParent(String name) {
+    return name.startsWith("org.apache.tools.ant.")
+        || name.startsWith("org.sonar.ant.");
+  }
+
+  /**
+   * Same behavior as in {@link URLClassLoader#loadClass(String, boolean)}, except loading from parent.
+   */
   @Override
   protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     // First, check if the class has already been loaded
     Class<?> c = findLoadedClass(name);
-    // Load from parent
-    if (c == null) {
-      if (name.startsWith("org.apache.tools.ant.") || name.startsWith("org.sonar.ant.")) {
-        c = getParent().loadClass(name);
-      }
-    }
-    // Load from this
     if (c == null) {
       try {
-        c = findClass(name);
+        // Load from parent
+        if ((getParent() != null) && canLoadFromParent(name)) {
+          c = getParent().loadClass(name);
+        } else {
+          // Load from system
+          c = getSystemClassLoader().loadClass(name);
+        }
       } catch (ClassNotFoundException e) {
-        // ignore
+        // If still not found, then invoke findClass in order
+        // to find the class.
+        c = findClass(name);
       }
     }
-    // Load from system
-    if (c == null) {
-      c = getSystemClassLoader().loadClass(name);
-    }
-
     if (resolve) {
       resolveClass(c);
     }
     return c;
   }
+
 }
