@@ -21,12 +21,17 @@
 package org.sonar.ant;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 public class SonarTask extends Task {
 
@@ -61,10 +66,25 @@ public class SonarTask extends Task {
 
   @Override
   public void execute() throws BuildException {
+    log(Main.getAntVersion());
+    log("Sonar Ant Task version: " + getTaskVersion());
+    log("Loaded from: " + getJarPath());
     log("Sonar server: " + serverUrl);
     bootstrapper = new BatchDownloader(serverUrl);
     checkSonarVersion();
     delegateExecution(createClassLoader());
+  }
+
+  static String getTaskVersion() {
+    try {
+      InputStream in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
+      Properties props = new Properties();
+      props.load(in);
+      in.close();
+      return props.getProperty("version");
+    } catch (Exception e) {
+      throw new BuildException("Could not load the version information:" + e.getMessage());
+    }
   }
 
   private void delegateExecution(SonarClassLoader sonarClassLoader) {
@@ -92,7 +112,7 @@ public class SonarTask extends Task {
       cl.addFile(file);
     }
     // Add JAR with Sonar Ant task - it's a Jar which contains this class
-    cl.addURL(getClass().getProtectionDomain().getCodeSource().getLocation());
+    cl.addURL(getJarPath());
     return cl;
   }
 
@@ -118,4 +138,33 @@ public class SonarTask extends Task {
     return version.startsWith(prefix + ".") || version.equals(prefix);
   }
 
+  /**
+   * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
+   * So this is a workaround.
+   * 
+   * @return Jar which contains this class
+   */
+  static URL getJarPath() {
+    String pathToClass = "/" + SonarTask.class.getName().replace('.', '/') + ".class";
+    URL url = SonarTask.class.getResource(pathToClass);
+    if (url != null) {
+      String path = url.toString();
+      String uri = null;
+      if (path.startsWith("jar:file:")) {
+        int bang = path.indexOf("!");
+        uri = path.substring(4, bang);
+      } else if (path.startsWith("file:")) {
+        int tail = path.indexOf(pathToClass);
+        uri = path.substring(0, tail);
+      }
+      if (uri != null) {
+        try {
+          return new URL(uri);
+        } catch (MalformedURLException e) {
+          // ignore
+        }
+      }
+    }
+    return null;
+  }
 }

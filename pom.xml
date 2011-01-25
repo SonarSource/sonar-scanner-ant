@@ -51,7 +51,7 @@
 
   <properties>
     <sonar.version>2.6-SNAPSHOT</sonar.version>
-    <ant.version>1.8.0</ant.version>
+    <ant.version>1.7.0</ant.version>
   </properties>
 
   <dependencies>
@@ -109,6 +109,13 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -22,12 +22,15 @@ package org.sonar.ant;
 
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class SonatTaskTest {
   @Test
-  public void shouldCheckVersion2() {
+  public void shouldCheckVersion() {
     assertThat(SonarTask.isVersionPriorTo2Dot6("1.0"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.0"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.1"), is(true));
@@ -36,5 +39,17 @@ public class SonatTaskTest {
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.4"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.4.1"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.5"), is(true));
+  }
+
+  @Test
+  public void shouldGetVersion() {
+    String version = SonarTask.getTaskVersion();
+    assertThat(version, containsString("."));
+    assertThat(version, not(containsString("$")));
+  }
+
+  @Test
+  public void shouldGetJarPath() {
+    assertThat(SonarTask.getJarPath(), not(nullValue()));
   }
 }
