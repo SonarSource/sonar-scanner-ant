@@ -25,6 +25,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
@@ -51,7 +52,7 @@ public class Launcher {
       initLogging();
       executeBatch();
     } catch (Exception e) {
-      throw new RuntimeException("Failed to execute Sonar", e);
+      throw new BuildException("Failed to execute Sonar", e);
     }
   }
 

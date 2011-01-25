@@ -97,18 +97,17 @@ public class SonarTask extends Task {
 
   private void delegateExecution(SonarClassLoader sonarClassLoader) {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(sonarClassLoader);
-
     try {
+      Thread.currentThread().setContextClassLoader(sonarClassLoader);
       Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.ant.Launcher");
       Method method = launcherClass.getMethod("execute", SonarTask.class);
       Object launcher = launcherClass.newInstance();
       method.invoke(launcher, this);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new BuildException("Failed to execute Sonar", e);
+    } finally {
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
-
-    Thread.currentThread().setContextClassLoader(oldContextClassLoader);
   }
 
   private SonarClassLoader createClassLoader() {
