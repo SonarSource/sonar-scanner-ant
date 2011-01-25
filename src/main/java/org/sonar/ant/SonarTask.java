@@ -20,18 +20,18 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Main;
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.*;
 import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 public class SonarTask extends Task {
 
@@ -43,11 +43,19 @@ public class SonarTask extends Task {
 
   private BatchDownloader bootstrapper;
 
+  public String getServerUrl() {
+    return serverUrl;
+  }
+
   /**
    * @param url Sonar host URL
    */
   public void setServer(String url) {
     this.serverUrl = url;
+  }
+
+  public File getWorkDir() {
+    return workDir;
   }
 
   /**
@@ -83,7 +91,7 @@ public class SonarTask extends Task {
       in.close();
       return props.getProperty("version");
     } catch (Exception e) {
-      throw new BuildException("Could not load the version information:" + e.getMessage());
+      throw new BuildException("Could not load the version information: " + e.getMessage());
     }
   }
 
@@ -138,6 +146,18 @@ public class SonarTask extends Task {
     return version.startsWith(prefix + ".") || version.equals(prefix);
   }
 
+  public String getLoggerLevel() {
+    int antLoggerLevel = getAntLoggerLever();
+    switch (antLoggerLevel) {
+      case 3:
+        return "DEBUG";
+      case 4:
+        return "TRACE";
+      default:
+        return "INFO";
+    }
+  }
+
   /**
    * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
    * So this is a workaround.
@@ -166,5 +186,31 @@ public class SonarTask extends Task {
       }
     }
     return null;
+  }
+
+  /**
+   * Workaround to get Ant logger level. Possible values (see {@link org.apache.tools.ant.Main}):
+   * <ul>
+   * <li>1 - quiet</li>
+   * <li>2 - default</li>
+   * <li>3 - verbose</li>
+   * <li>4 - debug</li>
+   * </ul>
+   */
+  private int getAntLoggerLever() {
+    try {
+      Vector<BuildListener> listeners = getProject().getBuildListeners();
+      for (BuildListener listener : listeners) {
+        if (listener instanceof DefaultLogger) {
+          DefaultLogger logger = (DefaultLogger) listener;
+          Field field = DefaultLogger.class.getDeclaredField("msgOutputLevel");
+          field.setAccessible(true);
+          return (Integer) field.get(logger);
+        }
+      }
+    } catch (Exception e) {
+      // ignore
+    }
+    return 2;
   }
 }

@@ -52,4 +52,12 @@ public class SonatTaskTest {
   public void shouldGetJarPath() {
     assertThat(SonarTask.getJarPath(), not(nullValue()));
   }
+
+  @Test
+  public void defaultValues() {
+    SonarTask task = new SonarTask();
+    assertThat(task.getServerUrl(), is("http://localhost:9000"));
+    assertThat(task.getLoggerLevel(), is("INFO"));
+  }
+
 }

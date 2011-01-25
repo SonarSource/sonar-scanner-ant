@@ -97,8 +97,8 @@ public class Launcher {
     jc.setContext(context);
     context.reset();
     InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml");
-    // System.setProperty("ROOT_LOGGER_LEVEL", getLog().isDebugEnabled() ? "DEBUG" : "INFO");
-    System.setProperty("ROOT_LOGGER_LEVEL", "INFO");
+
+    System.setProperty("ROOT_LOGGER_LEVEL", task.getLoggerLevel());
     try {
       jc.doConfigure(input);
 
