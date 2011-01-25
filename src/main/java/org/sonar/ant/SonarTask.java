@@ -20,101 +20,102 @@
 
 package org.sonar.ant;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import org.apache.commons.configuration.*;
-import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.resources.FileResource;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.platform.Environment;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.Batch;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
-import org.sonar.batch.bootstrapper.Reactor;
+import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.Iterator;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class SonarTask extends Task {
 
+  private String serverUrl = "http://localhost:9000";
+
+  private File workDir;
+
   private ProjectElement projectElement = new ProjectElement();
 
+  private BatchDownloader bootstrapper;
+
+  /**
+   * @param url Sonar host URL
+   */
+  public void setServer(String url) {
+    this.serverUrl = url;
+  }
+
+  /**
+   * @param workDir directory to which bootstrapper will download files
+   */
+  public void setWorkDir(File workDir) {
+    this.workDir = workDir;
+  }
+
+  /**
+   * @return project for analysis
+   */
   public ProjectElement createProject() {
     return projectElement;
   }
 
   @Override
   public void execute() throws BuildException {
+    log("Sonar server: " + serverUrl);
+    bootstrapper = new BatchDownloader(serverUrl);
+    checkSonarVersion();
+    delegateExecution(createClassLoader());
+  }
+
+  private void delegateExecution(SonarClassLoader sonarClassLoader) {
+    ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(sonarClassLoader);
+
     try {
-      System.out.println("Starting...");
-      initLogging();
-      executeBatch();
+      Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.ant.Launcher");
+      Method method = launcherClass.getMethod("execute", SonarTask.class);
+      Object launcher = launcherClass.newInstance();
+      method.invoke(launcher, this);
     } catch (Exception e) {
-      throw new BuildException("Failed to execute Sonar", e);
+      throw new RuntimeException(e);
+    }
+
+    Thread.currentThread().setContextClassLoader(oldContextClassLoader);
+  }
+
+  private SonarClassLoader createClassLoader() {
+    log("Sonar boot directory: " + workDir.getAbsolutePath());
+    List<File> files = bootstrapper.downloadBatchFiles(workDir);
+    SonarClassLoader cl = new SonarClassLoader(getClass().getClassLoader());
+    // Add Sonar files
+    for (File file : files) {
+      cl.addFile(file);
+    }
+    // Add JAR with Sonar Ant task - it's a Jar which contains this class
+    cl.addURL(getClass().getProtectionDomain().getCodeSource().getLocation());
+    return cl;
+  }
+
+  private void checkSonarVersion() {
+    String serverVersion = bootstrapper.getServerVersion();
+    log("Sonar version: " + serverVersion);
+    if (isVersionPriorTo2Dot6(serverVersion)) {
+      throw new BuildException("Sonar " + serverVersion + " does not support Ant");
     }
   }
 
-  /**
-   * Transforms {@link ProjectElement} into {@link ProjectDefinition}.
-   */
-  private ProjectDefinition defineProject(ProjectElement project) {
-    File baseDir = new File("/tmp/ant-test"); // TODO hard-coded value
-    Configuration properties = new BaseConfiguration();
-    ProjectDefinition definition = new ProjectDefinition(baseDir, properties);
-
-    properties.setProperty("project.key", project.getKey());
-
-    // TODO directories
-    for (Iterator<?> i = project.createSources().iterator(); i.hasNext();) {
-      Resource resource = (Resource) i.next();
-      if (resource.isDirectory() && resource instanceof FileResource) {
-        File dir = ((FileResource) resource).getFile();
-        definition.addSourceDir(dir.getAbsolutePath());
-      }
-    }
-
-    return definition;
+  static boolean isVersionPriorTo2Dot6(String version) {
+    return isVersion(version, "1")
+        || isVersion(version, "2.0")
+        || isVersion(version, "2.1")
+        || isVersion(version, "2.2")
+        || isVersion(version, "2.3")
+        || isVersion(version, "2.4")
+        || isVersion(version, "2.5");
   }
 
-  private void executeBatch() throws Exception {
-    Reactor reactor = new Reactor(defineProject(projectElement));
-    Batch batch = new Batch(getInitialConfiguration(), Environment.ANT, reactor);
-    batch.execute();
-  }
-
-  private void initLogging() {
-    LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-    JoranConfigurator jc = new JoranConfigurator();
-    jc.setContext(context);
-    context.reset();
-    InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml");
-    // System.setProperty("ROOT_LOGGER_LEVEL", getLog().isDebugEnabled() ? "DEBUG" : "INFO");
-    System.setProperty("ROOT_LOGGER_LEVEL", "DEBUG");
-    try {
-      jc.doConfigure(input);
-
-    } catch (JoranException e) {
-      throw new SonarException("can not initialize logging", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
-
-  private Configuration getInitialConfiguration() {
-    CompositeConfiguration configuration = new CompositeConfiguration();
-    configuration.addConfiguration(new SystemConfiguration());
-    configuration.addConfiguration(new EnvironmentConfiguration());
-    // TODO configuration.addConfiguration(new MapConfiguration(project.getProperties()));
-    Configuration projectProperties = new BaseConfiguration();
-    projectProperties.setProperty("sonar.core.codeCoveragePlugin", "none");
-    configuration.addConfiguration(projectProperties);
-    return configuration;
+  private static boolean isVersion(String version, String prefix) {
+    return version.startsWith(prefix + ".") || version.equals(prefix);
   }
 
 }

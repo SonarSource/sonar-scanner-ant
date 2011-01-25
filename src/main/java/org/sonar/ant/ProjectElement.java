@@ -20,30 +20,22 @@
 
 package org.sonar.ant;
 
+import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.resources.Union;
 
 public class ProjectElement {
 
-  private String key;
-  private String version;
+  private Environment properties = new Environment();
 
   private Union sources = new Union();
   private Union classes = new Union();
 
-  public void setKey(String key) {
-    this.key = key;
+  public void addProperty(Environment.Variable property) {
+    this.properties.addVariable(property);
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  public String getVersion() {
-    return version;
+  public Environment getProperties() {
+    return properties;
   }
 
   public Union createSources() {

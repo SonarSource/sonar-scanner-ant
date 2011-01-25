@@ -1,0 +1,17 @@
+<project name="Integration tests" basedir="." default="analyze-ant-projects">
+  <property environment="env"/>
+
+  <target name="analyze-ant-projects">
+    <execant dir="clover" />
+    <execant dir="cobertura" />
+  </target>
+
+  <macrodef name="execant">
+    <attribute name="dir"/>
+
+    <sequential>
+      <echo>========== @{dir} ==========</echo>
+      <ant dir="@{dir}" />
+    </sequential>
+  </macrodef>
+</project>

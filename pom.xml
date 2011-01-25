@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
@@ -24,7 +25,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
+
   <developers>
     <developer>
       <id>godin</id>
@@ -37,7 +38,7 @@
       <timezone>+1</timezone>
     </developer>
   </developers>
-  
+
   <scm>
     <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/ant-task</connection>
     <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/ant-task</developerConnection>
@@ -47,9 +48,10 @@
   </issueManagement>
   <ciManagement>
   </ciManagement>
-  
+
   <properties>
     <sonar.version>2.6-SNAPSHOT</sonar.version>
+    <ant.version>1.8.0</ant.version>
   </properties>
 
   <dependencies>
@@ -59,11 +61,11 @@
       <artifactId>sonar-batch-bootstrapper</artifactId>
       <version>${sonar.version}</version>
     </dependency>
-    <!-- Would be provided by environment  -->
+    <!-- Would be provided by environment -->
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <version>1.7.0</version>
+      <version>${ant.version}</version>
       <scope>provided</scope>
     </dependency>
     <!-- Would be available after bootstrapping -->
@@ -79,8 +81,33 @@
       <version>${sonar.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- Unit tests -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <version>${sonar.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-ws-client</artifactId>
+      <version>${sonar.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -97,4 +124,77 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>integration-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-dev-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <background>true</background>
+                  <clean>true</clean>
+                  <!-- <configBackup>${basedir}/src/it/sonar-backup.xml</configBackup> -->
+                </configuration>
+                <goals>
+                  <goal>start-war</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop-war</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.6</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-nodeps</artifactId>
+                <version>${ant.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-junit</artifactId>
+                <version>${ant.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-trax</artifactId>
+                <version>${ant.version}</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>analyze-ant-projects</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <tasks unless="skip.analysis">
+                    <ant dir="${basedir}/src/it" inheritRefs="true">
+                      <target name="analyze-ant-projects" />
+                    </ant>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
