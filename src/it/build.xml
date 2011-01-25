@@ -5,6 +5,7 @@
     <execant dir="clover" />
     <execant dir="cobertura" />
     <execant dir="many-source-dirs" />
+    <execant dir="classpath" />
   </target>
 
   <macrodef name="execant">

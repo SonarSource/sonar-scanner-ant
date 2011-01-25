@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ant-classpath" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+
+  <property name="lib.dir" value="../ant-libs"/>
+
+  <property name="build.dir" value="target"/>
+
+  <property name="classes.dir" value="${build.dir}/classes"/>
+
+  <path id="classpath">
+    <fileset dir="./lib" includes="*.jar" />
+  </path>
+
+  <target name="clean" description="Remove all files created by the build process.">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac destdir="${classes.dir}" classpathref="classpath" fork="true" debug="true" includeAntRuntime="false">
+      <src path="src"/>
+    </javac>
+  </target>
+
+  <target name="sonar">
+    <!-- Import Sonar Ant tasks -->
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <!-- TODO remove hardcoded version -->
+      <classpath path="../../../target/sonar-ant-task-0.1-SNAPSHOT.jar" />
+    </taskdef>
+
+    <mkdir dir="${build.dir}/sonar-boot" />
+
+    <!-- Execute Sonar -->
+    <sonar:sonar workDir="${build.dir}/sonar-boot">
+      <project>
+        <property key="sonar.projectKey" value="org.sonar.ant.tests:classpath" />
+        <property key="sonar.projectVersion" value="0.1-SNAPSHOT" />
+        <property key="project.build.directory" value="${build.dir}" />
+        <property key="sonar.profile" value="classpath" />
+
+        <sources>
+          <path location="src" />
+        </sources>
+        <binaries>
+          <pathelement location="${classes.dir}" />
+          <path refid="classpath"/>
+        </binaries>
+      </project>
+    </sonar:sonar>
+  </target>
+
+  <target name="all"
+          depends="clean,compile,sonar" />
+
+</project>

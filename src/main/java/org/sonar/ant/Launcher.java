@@ -65,7 +65,7 @@ public class Launcher {
     Properties properties = new Properties();
     ProjectDefinition definition = new ProjectDefinition(task.getProject().getBaseDir(), properties);
 
-    // Set properties
+    // Properties
     Enumeration<Variable> e = project.getProperties().getVariablesVector().elements();
     while (e.hasMoreElements()) {
       Variable property = e.nextElement();
@@ -74,7 +74,18 @@ public class Launcher {
       properties.setProperty(key, value);
     }
 
-    // TODO directories
+    // Binaries (classes and libraries)
+    StringBuilder sb = new StringBuilder();
+    for (Iterator<?> i = project.createBinaries().iterator(); i.hasNext();) {
+      Resource resource = (Resource) i.next();
+      if (resource instanceof FileResource) {
+        File fileResource = ((FileResource) resource).getFile();
+        sb.append(fileResource.getAbsolutePath()).append(',');
+      }
+    }
+    properties.setProperty("sonar.projectBinaries", sb.toString());
+
+    // Source directories
     for (Iterator<?> i = project.createSources().iterator(); i.hasNext();) {
       Resource resource = (Resource) i.next();
       if (resource.isDirectory() && resource instanceof FileResource) {
@@ -82,6 +93,8 @@ public class Launcher {
         definition.addSourceDir(dir.getAbsolutePath());
       }
     }
+
+    // TODO test directories
 
     return definition;
   }

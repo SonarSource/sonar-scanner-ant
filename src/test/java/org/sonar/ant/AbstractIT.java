@@ -21,9 +21,13 @@
 package org.sonar.ant;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.ResourceQuery;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public abstract class AbstractIT {
 
@@ -35,6 +39,11 @@ public abstract class AbstractIT {
   }
 
   protected abstract String getProjectKey();
+
+  @Test
+  public void projectIsAnalyzed() {
+    assertThat(sonar.find(new ResourceQuery(getProjectKey())).getVersion(), is("0.1-SNAPSHOT"));
+  }
 
   protected Measure getProjectMeasure(String metricKey) {
     return sonar.find(ResourceQuery.createForMetrics(getProjectKey(), metricKey)).getMeasure(metricKey);

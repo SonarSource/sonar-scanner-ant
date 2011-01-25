@@ -21,31 +21,27 @@
 package org.sonar.ant;
 
 import org.junit.Test;
+import org.sonar.wsclient.services.Violation;
+import org.sonar.wsclient.services.ViolationQuery;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CloverIT extends AbstractIT {
+public class ClasspathIT extends AbstractIT {
 
   @Override
-  public String getProjectKey() {
-    return "org.sonar.ant.tests:clover";
+  protected String getProjectKey() {
+    return "org.sonar.ant.tests:classpath";
   }
 
   @Test
   public void projectMetrics() {
-    assertThat(getProjectMeasure("line_coverage").getValue(), is(50.0));
-    assertThat(getProjectMeasure("lines_to_cover").getValue(), is(4.0));
-    assertThat(getProjectMeasure("uncovered_lines").getValue(), is(2.0));
-
-    assertThat(getProjectMeasure("branch_coverage").getValue(), is(50.0));
-    assertThat(getProjectMeasure("conditions_to_cover").getValue(), is(2.0));
-    assertThat(getProjectMeasure("uncovered_conditions").getValue(), is(1.0));
-
-    assertThat(getProjectMeasure("coverage").getValue(), is(50.0));
-
-    assertThat(getProjectMeasure("tests").getValue(), is(2.0));
-    assertThat(getProjectMeasure("test_success_density").getValue(), is(50.0));
+    ViolationQuery query = ViolationQuery.createForResource(getProjectKey()).setDepth(-1);
+    List<Violation> violations = sonar.findAll(query);
+    assertThat(violations.size(), is(1));
+    assertThat(violations.get(0).getRuleKey(), is("squid:CallToDeprecatedMethod"));
   }
 
 }

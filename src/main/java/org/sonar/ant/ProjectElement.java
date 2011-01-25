@@ -20,15 +20,22 @@
 
 package org.sonar.ant;
 
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Environment;
-import org.apache.tools.ant.types.resources.Union;
+import org.apache.tools.ant.types.Path;
 
 public class ProjectElement {
 
+  private Project antProject;
+
   private Environment properties = new Environment();
 
-  private Union sources = new Union();
-  private Union classes = new Union();
+  private Path sources;
+  private Path binaries;
+
+  public ProjectElement(Project antProject) {
+    this.antProject = antProject;
+  }
 
   public void addProperty(Environment.Variable property) {
     this.properties.addVariable(property);
@@ -38,12 +45,18 @@ public class ProjectElement {
     return properties;
   }
 
-  public Union createSources() {
+  public Path createSources() {
+    if (sources == null) {
+      sources = new Path(antProject);
+    }
     return sources;
   }
 
-  public Union createClasses() {
-    return classes;
+  public Path createBinaries() {
+    if (binaries == null) {
+      binaries = new Path(antProject);
+    }
+    return binaries;
   }
 
 }

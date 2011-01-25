@@ -39,7 +39,7 @@ public class SonarTask extends Task {
 
   private File workDir;
 
-  private ProjectElement projectElement = new ProjectElement();
+  private ProjectElement projectElement;
 
   private BatchDownloader bootstrapper;
 
@@ -69,6 +69,9 @@ public class SonarTask extends Task {
    * @return project for analysis
    */
   public ProjectElement createProject() {
+    if (projectElement == null) {
+      projectElement = new ProjectElement(getProject());
+    }
     return projectElement;
   }
 
