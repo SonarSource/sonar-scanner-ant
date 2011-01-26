@@ -24,6 +24,7 @@ import org.apache.tools.ant.*;
 import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -87,14 +88,22 @@ public class SonarTask extends Task {
   }
 
   static String getTaskVersion() {
+    InputStream in = null;
     try {
-      InputStream in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
+      in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
       Properties props = new Properties();
       props.load(in);
-      in.close();
       return props.getProperty("version");
     } catch (Exception e) {
       throw new BuildException("Could not load the version information: " + e.getMessage());
+    } finally {
+      try {
+        if (in != null) {
+          in.close();
+        }
+      } catch (IOException e) {
+        // ignore
+      }
     }
   }
 
@@ -130,7 +139,7 @@ public class SonarTask extends Task {
     String serverVersion = bootstrapper.getServerVersion();
     log("Sonar version: " + serverVersion);
     if (isVersionPriorTo2Dot6(serverVersion)) {
-      throw new BuildException("Sonar " + serverVersion + " does not support Ant");
+      throw new BuildException("Sonar " + serverVersion + " does not support Ant. Please upgrade Sonar to version 2.6 or more.");
     }
   }
 
@@ -163,7 +172,7 @@ public class SonarTask extends Task {
   /**
    * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
    * So this is a workaround.
-   * 
+   *
    * @return Jar which contains this class
    */
   static URL getJarPath() {
