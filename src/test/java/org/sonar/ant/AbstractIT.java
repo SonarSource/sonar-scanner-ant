@@ -40,9 +40,14 @@ public abstract class AbstractIT {
 
   protected abstract String getProjectKey();
 
+  protected String getProfile() {
+    return "Sonar way";
+  }
+
   @Test
   public void projectIsAnalyzed() {
-    assertThat(sonar.find(new ResourceQuery(getProjectKey())).getVersion(), is("0.1-SNAPSHOT"));
+    assertThat("Version", sonar.find(new ResourceQuery(getProjectKey())).getVersion(), is("0.1-SNAPSHOT"));
+    assertThat("Profile", getProjectMeasure("profile").getData(), is(getProfile()));
   }
 
   protected Measure getProjectMeasure(String metricKey) {

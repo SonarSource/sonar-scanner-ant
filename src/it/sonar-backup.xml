@@ -2520,7 +2520,7 @@
     </profile>
     <profile>
       <name><![CDATA[Sonar way]]></name>
-      <default-profile><![CDATA[false]]></default-profile>
+      <default-profile><![CDATA[true]]></default-profile>
       <provided><![CDATA[true]]></provided>
       <language><![CDATA[java]]></language>
       <active-rules>
@@ -3843,13 +3843,27 @@
     </profile>
     <profile>
       <name><![CDATA[classpath]]></name>
-      <default-profile><![CDATA[true]]></default-profile>
+      <default-profile><![CDATA[false]]></default-profile>
       <provided><![CDATA[false]]></provided>
       <language><![CDATA[java]]></language>
       <active-rules>
         <active-rule>
           <key><![CDATA[CallToDeprecatedMethod]]></key>
           <plugin><![CDATA[squid]]></plugin>
+          <level><![CDATA[MINOR]]></level>
+        </active-rule>
+      </active-rules>
+      <alerts/>
+    </profile>
+    <profile>
+      <name><![CDATA[java-version]]></name>
+      <default-profile><![CDATA[false]]></default-profile>
+      <provided><![CDATA[false]]></provided>
+      <language><![CDATA[java]]></language>
+      <active-rules>
+        <active-rule>
+          <key><![CDATA[IntegerInstantiation]]></key>
+          <plugin><![CDATA[pmd]]></plugin>
           <level><![CDATA[MINOR]]></level>
         </active-rule>
       </active-rules>

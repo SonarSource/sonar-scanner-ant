@@ -21,7 +21,6 @@
 package org.sonar.ant;
 
 import org.junit.Test;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -31,11 +30,6 @@ public class CoberturaIT extends AbstractIT {
   @Override
   protected String getProjectKey() {
     return "org.sonar.ant.tests:cobertura";
-  }
-
-  @Test
-  public void projectIsAnalyzed() {
-    assertThat(sonar.find(new ResourceQuery(getProjectKey())).getVersion(), is("0.1-SNAPSHOT"));
   }
 
   @Test

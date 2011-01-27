@@ -29,16 +29,16 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ClasspathIT extends AbstractIT {
+public class JavaVersionIT extends AbstractIT {
 
   @Override
   protected String getProjectKey() {
-    return "org.sonar.ant.tests:classpath";
+    return "org.sonar.ant.tests:java-version";
   }
 
   @Override
   protected String getProfile() {
-    return "classpath";
+    return "java-version";
   }
 
   @Test
@@ -46,7 +46,6 @@ public class ClasspathIT extends AbstractIT {
     ViolationQuery query = ViolationQuery.createForResource(getProjectKey()).setDepth(-1);
     List<Violation> violations = sonar.findAll(query);
     assertThat(violations.size(), is(1));
-    assertThat(violations.get(0).getRuleKey(), is("squid:CallToDeprecatedMethod"));
+    assertThat(violations.get(0).getRuleKey(), is("pmd:IntegerInstantiation"));
   }
-
 }

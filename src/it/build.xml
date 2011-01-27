@@ -6,6 +6,7 @@
     <execant dir="cobertura" />
     <execant dir="custom-layout" />
     <execant dir="classpath" />
+    <execant dir="java-version" />
   </target>
 
   <macrodef name="execant">
