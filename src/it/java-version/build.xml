@@ -30,21 +30,17 @@
       <classpath path="../../../target/sonar-ant-task-0.1-SNAPSHOT.jar" />
     </taskdef>
 
-    <mkdir dir="${build.dir}/sonar-boot" />
-
     <!-- Execute Sonar -->
-    <sonar:sonar workDir="${build.dir}/sonar-boot">
-      <project key="org.sonar.ant.tests:java-version" version="0.1-SNAPSHOT">
-        <property key="sonar.profile" value="java-version" />
-        <property key="sonar.java.source" value="1.6" />
-        <property key="sonar.java.target" value="1.6" />
-        <sources>
-          <path location="${src.dir}"/>
-        </sources>
-        <binaries>
-          <path location="${classes.dir}"/>
-        </binaries>
-      </project>
+    <sonar:sonar workDir="${build.dir}/sonar-work" key="org.sonar.ant.tests:java-version" version="0.1-SNAPSHOT">
+      <property key="sonar.profile" value="java-version" />
+      <property key="sonar.java.source" value="1.6" />
+      <property key="sonar.java.target" value="1.6" />
+      <sources>
+        <path location="${src.dir}"/>
+      </sources>
+      <binaries>
+        <path location="${classes.dir}"/>
+      </binaries>
     </sonar:sonar>
   </target>
 

@@ -21,6 +21,8 @@
 package org.sonar.ant;
 
 import org.apache.tools.ant.*;
+import org.apache.tools.ant.types.Environment;
+import org.apache.tools.ant.types.Path;
 import org.sonar.batch.bootstrapper.BatchDownloader;
 
 import java.io.File;
@@ -40,7 +42,11 @@ public class SonarTask extends Task {
 
   private File workDir;
 
-  private ProjectElement projectElement;
+  private Environment properties = new Environment();
+  private String key;
+  private String version;
+  private Path sources;
+  private Path binaries;
 
   private BatchDownloader bootstrapper;
 
@@ -55,25 +61,53 @@ public class SonarTask extends Task {
     this.serverUrl = url;
   }
 
-  public File getWorkDir() {
-    return workDir;
-  }
-
-  /**
-   * @param workDir directory to which bootstrapper will download files
-   */
   public void setWorkDir(File workDir) {
     this.workDir = workDir;
   }
 
-  /**
-   * @return project for analysis
-   */
-  public ProjectElement createProject() {
-    if (projectElement == null) {
-      projectElement = new ProjectElement(getProject());
+  public File getWorkDir() {
+    if (workDir == null) {
+      workDir = new File(getProject().getBaseDir(), ".sonar");
     }
-    return projectElement;
+    return workDir;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void addProperty(Environment.Variable property) {
+    this.properties.addVariable(property);
+  }
+
+  public Environment getProperties() {
+    return properties;
+  }
+
+  public Path createSources() {
+    if (sources == null) {
+      sources = new Path(getProject());
+    }
+    return sources;
+  }
+
+  public Path createBinaries() {
+    if (binaries == null) {
+      binaries = new Path(getProject());
+    }
+    return binaries;
   }
 
   @Override
@@ -123,8 +157,12 @@ public class SonarTask extends Task {
   }
 
   private SonarClassLoader createClassLoader() {
-    log("Sonar boot directory: " + workDir.getAbsolutePath());
-    List<File> files = bootstrapper.downloadBatchFiles(workDir);
+    log("Sonar work directory: " + workDir.getAbsolutePath());
+
+    File bootDir = new File(workDir, "batch");
+    bootDir.mkdirs();
+
+    List<File> files = bootstrapper.downloadBatchFiles(bootDir);
     SonarClassLoader cl = new SonarClassLoader(getClass().getClassLoader());
     // Add Sonar files
     for (File file : files) {
@@ -172,7 +210,7 @@ public class SonarTask extends Task {
   /**
    * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
    * So this is a workaround.
-   *
+   * 
    * @return Jar which contains this class
    */
   static URL getJarPath() {

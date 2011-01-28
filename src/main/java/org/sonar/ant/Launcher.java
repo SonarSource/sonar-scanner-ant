@@ -61,16 +61,16 @@ public class Launcher {
    * Transforms {@link ProjectElement} into {@link ProjectDefinition}.
    */
   private ProjectDefinition defineProject() {
-    ProjectElement project = task.createProject();
-
     Properties properties = new Properties();
-    ProjectDefinition definition = new ProjectDefinition(task.getProject().getBaseDir(), properties);
+    File baseDir = task.getProject().getBaseDir();
+    File workDir = task.getWorkDir();
+    ProjectDefinition definition = new ProjectDefinition(baseDir, workDir, properties);
 
     // Properties
-    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, project.getKey());
-    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, project.getVersion());
+    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, task.getKey());
+    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, task.getVersion());
 
-    Enumeration<Variable> e = project.getProperties().getVariablesVector().elements();
+    Enumeration<Variable> e = task.getProperties().getVariablesVector().elements();
     while (e.hasMoreElements()) {
       Variable property = e.nextElement();
       String key = property.getKey();
@@ -80,7 +80,7 @@ public class Launcher {
 
     // Binaries (classes and libraries)
     StringBuilder sb = new StringBuilder();
-    for (Iterator<?> i = project.createBinaries().iterator(); i.hasNext();) {
+    for (Iterator<?> i = task.createBinaries().iterator(); i.hasNext();) {
       Resource resource = (Resource) i.next();
       if (resource instanceof FileResource) {
         File fileResource = ((FileResource) resource).getFile();
@@ -90,7 +90,7 @@ public class Launcher {
     properties.setProperty("sonar.projectBinaries", sb.toString());
 
     // Source directories
-    for (Iterator<?> i = project.createSources().iterator(); i.hasNext();) {
+    for (Iterator<?> i = task.createSources().iterator(); i.hasNext();) {
       Resource resource = (Resource) i.next();
       if (resource.isDirectory() && resource instanceof FileResource) {
         File dir = ((FileResource) resource).getFile();
@@ -104,8 +104,9 @@ public class Launcher {
   }
 
   private void executeBatch() throws Exception {
-    Reactor reactor = new Reactor(defineProject());
-    Batch batch = new Batch(getInitialConfiguration(), Environment.ANT, reactor);
+    ProjectDefinition project = defineProject();
+    Reactor reactor = new Reactor(project);
+    Batch batch = new Batch(getInitialConfiguration(project), Environment.ANT, reactor);
     batch.execute();
   }
 
@@ -128,13 +129,14 @@ public class Launcher {
     }
   }
 
-  private Configuration getInitialConfiguration() {
+  private Configuration getInitialConfiguration(ProjectDefinition project) {
     CompositeConfiguration configuration = new CompositeConfiguration();
     configuration.addConfiguration(new SystemConfiguration());
     configuration.addConfiguration(new EnvironmentConfiguration());
-    // TODO configuration.addConfiguration(new MapConfiguration(project.getProperties()));
-    Configuration projectProperties = new BaseConfiguration();
-    configuration.addConfiguration(projectProperties);
+    // Ant properties
+    configuration.addConfiguration(new MapConfiguration(task.getProject().getProperties()));
+    // Task properties
+    configuration.addConfiguration(new MapConfiguration(project.getProperties()));
     return configuration;
   }
 

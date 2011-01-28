@@ -15,6 +15,7 @@
     <sequential>
       <echo>========== @{dir} ==========</echo>
       <ant dir="@{dir}" />
+      <ant dir="@{dir}" target="clean" />
     </sequential>
   </macrodef>
 </project>
