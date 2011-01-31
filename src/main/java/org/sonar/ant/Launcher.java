@@ -58,10 +58,7 @@ public class Launcher {
     executeBatch();
   }
 
-  /**
-   * Transforms {@link ProjectElement} into {@link ProjectDefinition}.
-   */
-  private ProjectDefinition defineProject() {
+  ProjectDefinition defineProject() {
     Properties properties = new Properties();
     File baseDir = task.getProject().getBaseDir();
     File workDir = task.getWorkDir();
@@ -70,6 +67,13 @@ public class Launcher {
     // Properties
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, task.getKey());
     properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, task.getVersion());
+
+    if (task.getProject().getName() != null) {
+      properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, task.getProject().getName());
+    }
+    if (task.getProject().getDescription() != null) {
+      properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, task.getProject().getDescription());
+    }
 
     Enumeration<Variable> e = task.getProperties().getVariablesVector().elements();
     while (e.hasMoreElements()) {

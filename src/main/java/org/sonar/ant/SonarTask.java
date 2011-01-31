@@ -36,8 +36,6 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
-  private String serverUrl = "http://localhost:9000";
-
   private File workDir;
 
   private Environment properties = new Environment();
@@ -48,21 +46,24 @@ public class SonarTask extends Task {
 
   private BatchDownloader bootstrapper;
 
-  public String getServerUrl() {
-    return serverUrl;
-  }
-
   /**
-   * @param url Sonar host URL
+   * @return value of property "sonar.host.url", default is "http://localhost:9000"
    */
-  public void setServer(String url) {
-    this.serverUrl = url;
+  public String getServerUrl() {
+    String serverUrl = getProject().getProperty("sonar.host.url");
+    if (serverUrl == null) {
+      return "http://localhost:9000";
+    }
+    return serverUrl;
   }
 
   public void setWorkDir(File workDir) {
     this.workDir = workDir;
   }
 
+  /**
+   * @return work directory, default is ".sonar" in project directory
+   */
   public File getWorkDir() {
     if (workDir == null) {
       workDir = new File(getProject().getBaseDir(), ".sonar");
