@@ -28,7 +28,9 @@ import org.sonar.batch.bootstrapper.BatchDownloader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -110,13 +112,18 @@ public class SonarTask extends Task {
     return binaries;
   }
 
+  /**
+   * Note about how Ant handles exceptions: according to {@link DefaultLogger#buildFinished(BuildEvent)} if we want to print stack trace,
+   * then we shouldn't use {@link BuildException} with message.
+   */
   @Override
-  public void execute() throws BuildException {
+  public void execute() {
     log(Main.getAntVersion());
     log("Sonar Ant Task version: " + getTaskVersion());
     log("Loaded from: " + getJarPath());
-    log("Sonar server: " + serverUrl);
-    bootstrapper = new BatchDownloader(serverUrl);
+    log("Sonar work directory: " + getWorkDir().getAbsolutePath());
+    log("Sonar server: " + getServerUrl());
+    bootstrapper = new BatchDownloader(getServerUrl());
     checkSonarVersion();
     delegateExecution(createClassLoader());
   }
@@ -128,8 +135,8 @@ public class SonarTask extends Task {
       Properties props = new Properties();
       props.load(in);
       return props.getProperty("version");
-    } catch (Exception e) {
-      throw new BuildException("Could not load the version information: " + e.getMessage());
+    } catch (IOException e) {
+      throw new BuildException("Could not load the version information for Sonar Ant Task", e);
     } finally {
       try {
         if (in != null) {
@@ -141,25 +148,33 @@ public class SonarTask extends Task {
     }
   }
 
+  /**
+   * Loads {@link Launcher} from specified {@link SonarClassLoader} and passes control to it.
+   * 
+   * @see Launcher#execute()
+   */
   private void delegateExecution(SonarClassLoader sonarClassLoader) {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(sonarClassLoader);
       Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.ant.Launcher");
-      Method method = launcherClass.getMethod("execute", SonarTask.class);
-      Object launcher = launcherClass.newInstance();
-      method.invoke(launcher, this);
+      Constructor<?> constructor = launcherClass.getConstructor(SonarTask.class);
+      Object launcher = constructor.newInstance(this);
+      Method method = launcherClass.getMethod("execute");
+      method.invoke(launcher);
+    } catch (InvocationTargetException e) {
+      // Unwrap original exception
+      throw new BuildException(e.getTargetException());
     } catch (Exception e) {
-      throw new BuildException("Failed to execute Sonar", e);
+      // Catch all other exceptions, which relates to reflection
+      throw new BuildException(e);
     } finally {
       Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
   }
 
   private SonarClassLoader createClassLoader() {
-    log("Sonar work directory: " + workDir.getAbsolutePath());
-
-    File bootDir = new File(workDir, "batch");
+    File bootDir = new File(getWorkDir(), "batch");
     bootDir.mkdirs();
 
     List<File> files = bootstrapper.downloadBatchFiles(bootDir);
@@ -220,7 +235,7 @@ public class SonarTask extends Task {
       String path = url.toString();
       String uri = null;
       if (path.startsWith("jar:file:")) {
-        int bang = path.indexOf("!");
+        int bang = path.indexOf('!');
         uri = path.substring(4, bang);
       } else if (path.startsWith("file:")) {
         int tail = path.indexOf(pathToClass);

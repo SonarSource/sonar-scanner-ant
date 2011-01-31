@@ -25,7 +25,6 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
@@ -47,14 +46,16 @@ public class Launcher {
 
   private SonarTask task;
 
-  public void execute(SonarTask task) {
+  public Launcher(SonarTask task) {
     this.task = task;
-    try {
-      initLogging();
-      executeBatch();
-    } catch (Exception e) {
-      throw new BuildException("Failed to execute Sonar", e);
-    }
+  }
+
+  /**
+   * This method invoked from {@link SonarTask}.
+   */
+  public void execute() {
+    initLogging();
+    executeBatch();
   }
 
   /**
@@ -103,7 +104,7 @@ public class Launcher {
     return definition;
   }
 
-  private void executeBatch() throws Exception {
+  private void executeBatch() {
     ProjectDefinition project = defineProject();
     Reactor reactor = new Reactor(project);
     Batch batch = new Batch(getInitialConfiguration(project), Environment.ANT, reactor);
@@ -122,7 +123,7 @@ public class Launcher {
       jc.doConfigure(input);
 
     } catch (JoranException e) {
-      throw new SonarException("can not initialize logging", e);
+      throw new SonarException("Can not initialize logging", e);
 
     } finally {
       IOUtils.closeQuietly(input);
