@@ -118,7 +118,7 @@ public class Launcher {
     context.reset();
     InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml");
 
-    System.setProperty("ROOT_LOGGER_LEVEL", task.getLoggerLevel());
+    System.setProperty("ROOT_LOGGER_LEVEL", getLoggerLevel());
     try {
       jc.doConfigure(input);
 
@@ -127,6 +127,18 @@ public class Launcher {
 
     } finally {
       IOUtils.closeQuietly(input);
+    }
+  }
+
+  private String getLoggerLevel() {
+    int antLoggerLevel = Utils.getAntLoggerLever(task.getProject());
+    switch (antLoggerLevel) {
+      case 3:
+        return "DEBUG";
+      case 4:
+        return "TRACE";
+      default:
+        return "INFO";
     }
   }
 

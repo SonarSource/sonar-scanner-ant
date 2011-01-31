@@ -29,14 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
 
 public class SonarTask extends Task {
 
@@ -120,32 +116,12 @@ public class SonarTask extends Task {
   public void execute() {
     log(Main.getAntVersion());
     log("Sonar Ant Task version: " + getTaskVersion());
-    log("Loaded from: " + getJarPath());
+    log("Loaded from: " + Utils.getJarPath());
     log("Sonar work directory: " + getWorkDir().getAbsolutePath());
     log("Sonar server: " + getServerUrl());
     bootstrapper = new BatchDownloader(getServerUrl());
     checkSonarVersion();
     delegateExecution(createClassLoader());
-  }
-
-  static String getTaskVersion() {
-    InputStream in = null;
-    try {
-      in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
-      Properties props = new Properties();
-      props.load(in);
-      return props.getProperty("version");
-    } catch (IOException e) {
-      throw new BuildException("Could not load the version information for Sonar Ant Task", e);
-    } finally {
-      try {
-        if (in != null) {
-          in.close();
-        }
-      } catch (IOException e) {
-        // ignore
-      }
-    }
   }
 
   /**
@@ -184,7 +160,7 @@ public class SonarTask extends Task {
       cl.addFile(file);
     }
     // Add JAR with Sonar Ant task - it's a Jar which contains this class
-    cl.addURL(getJarPath());
+    cl.addURL(Utils.getJarPath());
     return cl;
   }
 
@@ -210,71 +186,23 @@ public class SonarTask extends Task {
     return version.startsWith(prefix + ".") || version.equals(prefix);
   }
 
-  public String getLoggerLevel() {
-    int antLoggerLevel = getAntLoggerLever();
-    switch (antLoggerLevel) {
-      case 3:
-        return "DEBUG";
-      case 4:
-        return "TRACE";
-      default:
-        return "INFO";
-    }
-  }
-
-  /**
-   * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
-   * So this is a workaround.
-   * 
-   * @return Jar which contains this class
-   */
-  static URL getJarPath() {
-    String pathToClass = "/" + SonarTask.class.getName().replace('.', '/') + ".class";
-    URL url = SonarTask.class.getResource(pathToClass);
-    if (url != null) {
-      String path = url.toString();
-      String uri = null;
-      if (path.startsWith("jar:file:")) {
-        int bang = path.indexOf('!');
-        uri = path.substring(4, bang);
-      } else if (path.startsWith("file:")) {
-        int tail = path.indexOf(pathToClass);
-        uri = path.substring(0, tail);
-      }
-      if (uri != null) {
-        try {
-          return new URL(uri);
-        } catch (MalformedURLException e) {
-          // ignore
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Workaround to get Ant logger level. Possible values (see {@link org.apache.tools.ant.Main}):
-   * <ul>
-   * <li>1 - quiet</li>
-   * <li>2 - default</li>
-   * <li>3 - verbose</li>
-   * <li>4 - debug</li>
-   * </ul>
-   */
-  private int getAntLoggerLever() {
+  public static String getTaskVersion() {
+    InputStream in = null;
     try {
-      Vector<BuildListener> listeners = getProject().getBuildListeners();
-      for (BuildListener listener : listeners) {
-        if (listener instanceof DefaultLogger) {
-          DefaultLogger logger = (DefaultLogger) listener;
-          Field field = DefaultLogger.class.getDeclaredField("msgOutputLevel");
-          field.setAccessible(true);
-          return (Integer) field.get(logger);
+      in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
+      Properties props = new Properties();
+      props.load(in);
+      return props.getProperty("version");
+    } catch (IOException e) {
+      throw new BuildException("Could not load the version information for Sonar Ant Task", e);
+    } finally {
+      try {
+        if (in != null) {
+          in.close();
         }
+      } catch (IOException e) { // NOSONAR
       }
-    } catch (Exception e) {
-      // ignore
     }
-    return 2;
   }
+
 }

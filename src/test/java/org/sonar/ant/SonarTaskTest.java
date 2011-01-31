@@ -28,7 +28,6 @@ import java.io.File;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class SonarTaskTest {
@@ -52,17 +51,11 @@ public class SonarTaskTest {
   }
 
   @Test
-  public void shouldGetJarPath() {
-    assertThat(SonarTask.getJarPath(), not(nullValue()));
-  }
-
-  @Test
   public void defaultValues() {
     SonarTask task = new SonarTask();
     task.setProject(new Project());
     assertThat(task.getServerUrl(), is("http://localhost:9000"));
     assertThat(task.getWorkDir(), is(new File(task.getProject().getBaseDir(), ".sonar")));
-    assertThat(task.getLoggerLevel(), is("INFO"));
   }
 
 }
