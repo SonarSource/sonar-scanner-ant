@@ -89,6 +89,6 @@ public class LauncherTest {
     Environment.Variable var = new Environment.Variable();
     var.setKey(key);
     var.setValue(value);
-    task.addProperty(var);
+    task.addConfiguredProperty(var);
   }
 }

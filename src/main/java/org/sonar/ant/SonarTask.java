@@ -93,7 +93,10 @@ public class SonarTask extends Task {
     return version;
   }
 
-  public void addProperty(Environment.Variable property) {
+  /**
+   * Note that name of this method is important - see http://ant.apache.org/manual/develop.html#nested-elements
+   */
+  public void addConfiguredProperty(Environment.Variable property) {
     properties.setProperty(property.getKey(), property.getValue());
   }
 
