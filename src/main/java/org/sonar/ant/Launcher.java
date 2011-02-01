@@ -25,7 +25,6 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.types.Environment.Variable;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,6 @@ import org.sonar.batch.bootstrapper.Reactor;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -64,24 +62,20 @@ public class Launcher {
     File workDir = task.getWorkDir();
     ProjectDefinition definition = new ProjectDefinition(baseDir, workDir, properties);
 
-    // Properties
+    // Properties from task attributes
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, task.getKey());
     properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, task.getVersion());
-
+    // Properties from project attributes
     if (task.getProject().getName() != null) {
       properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, task.getProject().getName());
     }
     if (task.getProject().getDescription() != null) {
       properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, task.getProject().getDescription());
     }
-
-    Enumeration<Variable> e = task.getProperties().getVariablesVector().elements();
-    while (e.hasMoreElements()) {
-      Variable property = e.nextElement();
-      String key = property.getKey();
-      String value = property.getValue();
-      properties.setProperty(key, value);
-    }
+    // Properties from task
+    properties.putAll(task.getProperties());
+    // Properties from Ant
+    properties.putAll(task.getProject().getProperties());
 
     // Binaries (classes and libraries)
     StringBuilder sb = new StringBuilder();
@@ -103,7 +97,14 @@ public class Launcher {
       }
     }
 
-    // TODO test directories
+    // Test directories
+    for (Iterator<?> i = task.createSources().iterator(); i.hasNext();) {
+      Resource resource = (Resource) i.next();
+      if (resource.isDirectory() && resource instanceof FileResource) {
+        File dir = ((FileResource) resource).getFile();
+        definition.addSourceDir(dir.getAbsolutePath());
+      }
+    }
 
     return definition;
   }
@@ -150,9 +151,6 @@ public class Launcher {
     CompositeConfiguration configuration = new CompositeConfiguration();
     configuration.addConfiguration(new SystemConfiguration());
     configuration.addConfiguration(new EnvironmentConfiguration());
-    // Ant properties
-    configuration.addConfiguration(new MapConfiguration(task.getProject().getProperties()));
-    // Task properties
     configuration.addConfiguration(new MapConfiguration(project.getProperties()));
     return configuration;
   }

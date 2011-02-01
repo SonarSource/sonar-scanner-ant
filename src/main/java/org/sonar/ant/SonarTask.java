@@ -36,12 +36,15 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
+  private static final String HOST_PROPERTY = "sonar.host.url";
+
   private File workDir;
 
-  private Environment properties = new Environment();
+  private Properties properties = new Properties();
   private String key;
   private String version;
   private Path sources;
+  private Path tests;
   private Path binaries;
 
   private BatchDownloader bootstrapper;
@@ -50,9 +53,12 @@ public class SonarTask extends Task {
    * @return value of property "sonar.host.url", default is "http://localhost:9000"
    */
   public String getServerUrl() {
-    String serverUrl = getProject().getProperty("sonar.host.url");
+    String serverUrl = getProperties().getProperty(HOST_PROPERTY); // from task
     if (serverUrl == null) {
-      return "http://localhost:9000";
+      serverUrl = getProject().getProperty(HOST_PROPERTY); // from ant
+    }
+    if (serverUrl == null) {
+      serverUrl = "http://localhost:9000"; // default
     }
     return serverUrl;
   }
@@ -88,10 +94,10 @@ public class SonarTask extends Task {
   }
 
   public void addProperty(Environment.Variable property) {
-    this.properties.addVariable(property);
+    properties.setProperty(property.getKey(), property.getValue());
   }
 
-  public Environment getProperties() {
+  public Properties getProperties() {
     return properties;
   }
 
@@ -100,6 +106,13 @@ public class SonarTask extends Task {
       sources = new Path(getProject());
     }
     return sources;
+  }
+
+  public Path createTests() {
+    if (tests == null) {
+      tests = new Path(getProject());
+    }
+    return tests;
   }
 
   public Path createBinaries() {

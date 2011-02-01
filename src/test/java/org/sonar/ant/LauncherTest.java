@@ -67,13 +67,13 @@ public class LauncherTest {
 
   @Test
   public void overrideDefaultValues() {
+    antProject.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch");
     task.setKey("org.example:example");
     task.setVersion("0.1-SNAPSHOT");
-    // TODO Following two lines doesn't work
-    // setProperty(task, CoreProperties.PROJECT_KEY_PROPERTY, "org.example:example");
-    // setProperty(task, CoreProperties.PROJECT_VERSION_PROPERTY, "0.1-SNAPSHOT");
+
     setProperty(task, CoreProperties.PROJECT_NAME_PROPERTY, "My project");
     setProperty(task, CoreProperties.PROJECT_DESCRIPTION_PROPERTY, "My description");
+    setProperty(task, CoreProperties.PROJECT_BRANCH_PROPERTY, "Not used");
 
     ProjectDefinition sonarProject = launcher.defineProject();
 
@@ -82,6 +82,7 @@ public class LauncherTest {
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_VERSION_PROPERTY), is("0.1-SNAPSHOT"));
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_NAME_PROPERTY), is("My project"));
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY), is("My description"));
+    assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY), is("branch"));
   }
 
   private void setProperty(SonarTask task, String key, String value) {

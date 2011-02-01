@@ -41,6 +41,7 @@ public class SonarTaskTest {
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.4"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.4.1"), is(true));
     assertThat(SonarTask.isVersionPriorTo2Dot6("2.5"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot6("2.6"), is(false));
   }
 
   @Test
@@ -51,7 +52,7 @@ public class SonarTaskTest {
   }
 
   @Test
-  public void defaultValues() {
+  public void shouldReturnDefaultValues() {
     SonarTask task = new SonarTask();
     task.setProject(new Project());
     assertThat(task.getServerUrl(), is("http://localhost:9000"));
