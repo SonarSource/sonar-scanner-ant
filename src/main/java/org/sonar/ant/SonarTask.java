@@ -46,6 +46,7 @@ public class SonarTask extends Task {
   private Path sources;
   private Path tests;
   private Path binaries;
+  private Path libraries;
 
   private BatchDownloader bootstrapper;
 
@@ -123,6 +124,13 @@ public class SonarTask extends Task {
       binaries = new Path(getProject());
     }
     return binaries;
+  }
+
+  public Path createLibraries() {
+    if (libraries == null) {
+      libraries = new Path(getProject());
+    }
+    return libraries;
   }
 
   /**

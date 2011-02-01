@@ -25,6 +25,8 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,9 @@ import org.sonar.batch.bootstrapper.Reactor;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 public class Launcher {
@@ -77,36 +81,39 @@ public class Launcher {
     // Properties from Ant
     properties.putAll(task.getProject().getProperties());
 
-    // Binaries (classes and libraries)
-    StringBuilder sb = new StringBuilder();
-    for (Iterator<?> i = task.createBinaries().iterator(); i.hasNext();) {
-      Resource resource = (Resource) i.next();
-      if (resource instanceof FileResource) {
-        File fileResource = ((FileResource) resource).getFile();
-        sb.append(fileResource.getAbsolutePath()).append(',');
-      }
-    }
-    properties.setProperty("sonar.projectBinaries", sb.toString());
+    // Binaries (classes)
+    properties.setProperty("sonar.projectBinaries", getPathAsString(task.createBinaries()));
+
+    // Binaries (libraries)
+    properties.setProperty("sonar.projectLibraries", getPathAsString(task.createLibraries()));
 
     // Source directories
-    for (Iterator<?> i = task.createSources().iterator(); i.hasNext();) {
-      Resource resource = (Resource) i.next();
-      if (resource.isDirectory() && resource instanceof FileResource) {
-        File dir = ((FileResource) resource).getFile();
-        definition.addSourceDir(dir.getAbsolutePath());
-      }
+    for (String dir : getPathAsList(task.createSources())) {
+      definition.addSourceDir(dir);
     }
 
     // Test directories
-    for (Iterator<?> i = task.createSources().iterator(); i.hasNext();) {
-      Resource resource = (Resource) i.next();
-      if (resource.isDirectory() && resource instanceof FileResource) {
-        File dir = ((FileResource) resource).getFile();
-        definition.addSourceDir(dir.getAbsolutePath());
-      }
+    for (String dir : getPathAsList(task.createTests())) {
+      definition.addTestDir(dir);
     }
 
     return definition;
+  }
+
+  private String getPathAsString(Path path) {
+    return StringUtils.join(getPathAsList(path), ',');
+  }
+
+  private List<String> getPathAsList(Path path) {
+    List<String> result = new ArrayList<String>();
+    for (Iterator<?> i = path.iterator(); i.hasNext();) {
+      Resource resource = (Resource) i.next();
+      if (resource instanceof FileResource) {
+        File fileResource = ((FileResource) resource).getFile();
+        result.add(fileResource.getAbsolutePath());
+      }
+    }
+    return result;
   }
 
   private void executeBatch() {
