@@ -12,20 +12,13 @@
   <version>0.1-SNAPSHOT</version>
 
   <name>Sonar Ant Task</name>
-
+  <description></description>
+  <url>http://docs.codehaus.org/display/SONAR/Sonar+Ant+Task</url>
+  <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource</name>
     <url>http://www.sonarsource.com</url>
   </organization>
-
-  <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/ant-task</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/ant-task</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
-  </scm>
-  <issueManagement>
-  </issueManagement>
-
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
@@ -46,7 +39,17 @@
       <timezone>+1</timezone>
     </developer>
   </developers>
-  
+
+  <scm>
+    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/ant-task</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/ant-task</developerConnection>
+    <url>http://svn.sonar-plugins.codehaus.org</url>
+  </scm>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14635</url>
+  </issueManagement>
+
   <properties>
     <sonar.version>2.6-SNAPSHOT</sonar.version>
     <ant.version>1.7.0</ant.version>
