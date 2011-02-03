@@ -23,7 +23,9 @@ package org.sonar.ant;
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Path;
-import org.sonar.batch.bootstrapper.BatchDownloader;
+import org.sonar.batch.bootstrapper.BootstrapClassLoader;
+import org.sonar.batch.bootstrapper.Bootstrapper;
+import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.net.URL;
 import java.util.Properties;
 
 public class SonarTask extends Task {
@@ -48,7 +50,7 @@ public class SonarTask extends Task {
   private Path binaries;
   private Path libraries;
 
-  private BatchDownloader bootstrapper;
+  private Bootstrapper bootstrapper;
 
   /**
    * @return value of property "sonar.host.url", default is "http://localhost:9000"
@@ -144,17 +146,17 @@ public class SonarTask extends Task {
     log("Loaded from: " + Utils.getJarPath());
     log("Sonar work directory: " + getWorkDir().getAbsolutePath());
     log("Sonar server: " + getServerUrl());
-    bootstrapper = new BatchDownloader(getServerUrl());
+    bootstrapper = new Bootstrapper(getServerUrl(), getWorkDir());
     checkSonarVersion();
     delegateExecution(createClassLoader());
   }
 
   /**
-   * Loads {@link Launcher} from specified {@link SonarClassLoader} and passes control to it.
+   * Loads {@link Launcher} from specified {@link BootstrapClassLoader} and passes control to it.
    * 
    * @see Launcher#execute()
    */
-  private void delegateExecution(SonarClassLoader sonarClassLoader) {
+  private void delegateExecution(BootstrapClassLoader sonarClassLoader) {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(sonarClassLoader);
@@ -174,19 +176,11 @@ public class SonarTask extends Task {
     }
   }
 
-  private SonarClassLoader createClassLoader() {
-    File bootDir = new File(getWorkDir(), "batch");
-    bootDir.mkdirs();
-
-    List<File> files = bootstrapper.downloadBatchFiles(bootDir);
-    SonarClassLoader cl = new SonarClassLoader(getClass().getClassLoader());
-    // Add Sonar files
-    for (File file : files) {
-      cl.addFile(file);
-    }
-    // Add JAR with Sonar Ant task - it's a Jar which contains this class
-    cl.addURL(Utils.getJarPath());
-    return cl;
+  private BootstrapClassLoader createClassLoader() {
+    return bootstrapper.createClassLoader(
+        new URL[] { Utils.getJarPath() }, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        getClass().getClassLoader(),
+        "org.apache.tools.ant", "org.sonar.ant");
   }
 
   private void checkSonarVersion() {
@@ -221,12 +215,7 @@ public class SonarTask extends Task {
     } catch (IOException e) {
       throw new BuildException("Could not load the version information for Sonar Ant Task", e);
     } finally {
-      try {
-        if (in != null) {
-          in.close();
-        }
-      } catch (IOException e) { // NOSONAR
-      }
+      BootstrapperIOUtils.closeQuietly(in);
     }
   }
 
