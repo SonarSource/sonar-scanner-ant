@@ -1,6 +1,6 @@
 /*
  * Sonar Ant Task
- * Copyright (C) 2009 SonarSource
+ * Copyright (C) 2011 SonarSource
  * dev@sonar.codehaus.org
  *
  * This program is free software; you can redistribute it and/or
