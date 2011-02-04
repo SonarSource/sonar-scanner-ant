@@ -20,28 +20,29 @@
 
 package org.sonar.ant;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import org.apache.commons.configuration.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.resources.FileResource;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.platform.Environment;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.Batch;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
-import org.sonar.batch.bootstrapper.Reactor;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import org.apache.commons.configuration.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.Main;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Resource;
+import org.apache.tools.ant.types.resources.FileResource;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.Batch;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.batch.bootstrapper.Reactor;
 
 public class Launcher {
 
@@ -115,7 +116,7 @@ public class Launcher {
   private void executeBatch() {
     ProjectDefinition project = defineProject();
     Reactor reactor = new Reactor(project);
-    Batch batch = new Batch(getInitialConfiguration(project), Environment.ANT, reactor);
+    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor);
     batch.execute();
   }
 
