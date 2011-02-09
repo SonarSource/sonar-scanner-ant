@@ -20,13 +20,6 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.*;
-import org.apache.tools.ant.types.Environment;
-import org.apache.tools.ant.types.Path;
-import org.sonar.batch.bootstrapper.BootstrapClassLoader;
-import org.sonar.batch.bootstrapper.Bootstrapper;
-import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +28,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Properties;
+
+import org.apache.tools.ant.*;
+import org.apache.tools.ant.types.Environment;
+import org.apache.tools.ant.types.Path;
+import org.sonar.batch.bootstrapper.BootstrapClassLoader;
+import org.sonar.batch.bootstrapper.Bootstrapper;
+import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
 
 public class SonarTask extends Task {
 
@@ -146,7 +146,7 @@ public class SonarTask extends Task {
     log("Loaded from: " + Utils.getJarPath());
     log("Sonar work directory: " + getWorkDir().getAbsolutePath());
     log("Sonar server: " + getServerUrl());
-    bootstrapper = new Bootstrapper(getServerUrl(), getWorkDir());
+    bootstrapper = new Bootstrapper("AntTask/" + getTaskVersion(), getServerUrl(), getWorkDir());
     checkSonarVersion();
     delegateExecution(createClassLoader());
   }
