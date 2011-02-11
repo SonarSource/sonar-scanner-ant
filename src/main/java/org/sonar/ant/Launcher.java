@@ -116,7 +116,8 @@ public class Launcher {
   private void executeBatch() {
     ProjectDefinition project = defineProject();
     Reactor reactor = new Reactor(project);
-    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor);
+    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor,
+        task.getProject());
     batch.execute();
   }
 
