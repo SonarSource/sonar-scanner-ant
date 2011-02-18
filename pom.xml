@@ -51,7 +51,7 @@
   </issueManagement>
 
   <properties>
-    <sonar.version>2.6-RC1</sonar.version>
+    <sonar.version>2.6</sonar.version>
     <ant.version>1.7.0</ant.version>
   </properties>
 
