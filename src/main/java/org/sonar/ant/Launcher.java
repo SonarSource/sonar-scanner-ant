@@ -20,13 +20,6 @@
 
 package org.sonar.ant;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -43,6 +36,13 @@ import org.sonar.batch.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.bootstrapper.Reactor;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class Launcher {
 
@@ -62,9 +62,7 @@ public class Launcher {
 
   ProjectDefinition defineProject() {
     Properties properties = new Properties();
-    File baseDir = task.getProject().getBaseDir();
-    File workDir = task.getWorkDir();
-    ProjectDefinition definition = new ProjectDefinition(baseDir, workDir, properties);
+    ProjectDefinition definition = new ProjectDefinition(task.getBaseDir(), task.getWorkDir(), properties);
 
     // Properties from task attributes
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, task.getKey());

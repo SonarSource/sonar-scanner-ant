@@ -20,6 +20,13 @@
 
 package org.sonar.ant;
 
+import org.apache.tools.ant.*;
+import org.apache.tools.ant.types.Environment;
+import org.apache.tools.ant.types.Path;
+import org.sonar.batch.bootstrapper.BootstrapClassLoader;
+import org.sonar.batch.bootstrapper.Bootstrapper;
+import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,19 +36,12 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.tools.ant.*;
-import org.apache.tools.ant.types.Environment;
-import org.apache.tools.ant.types.Path;
-import org.sonar.batch.bootstrapper.BootstrapClassLoader;
-import org.sonar.batch.bootstrapper.Bootstrapper;
-import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
-
 public class SonarTask extends Task {
 
   private static final String HOST_PROPERTY = "sonar.host.url";
 
   private File workDir;
-
+  private File baseDir;
   private Properties properties = new Properties();
   private String key;
   private String version;
@@ -75,9 +75,27 @@ public class SonarTask extends Task {
    */
   public File getWorkDir() {
     if (workDir == null) {
-      workDir = new File(getProject().getBaseDir(), ".sonar");
+      workDir = new File(getBaseDir(), ".sonar");
     }
     return workDir;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public void setBaseDir(File baseDir) {
+    this.baseDir = baseDir;
+  }
+
+  /**
+   * @return base directory, default is the current project base directory
+   * @since 1.1
+   */
+  public File getBaseDir() {
+    if (baseDir == null) {
+      baseDir = getProject().getBaseDir();
+    }
+    return baseDir;
   }
 
   public void setKey(String key) {
@@ -153,7 +171,7 @@ public class SonarTask extends Task {
 
   /**
    * Loads {@link Launcher} from specified {@link BootstrapClassLoader} and passes control to it.
-   * 
+   *
    * @see Launcher#execute()
    */
   private void delegateExecution(BootstrapClassLoader sonarClassLoader) {
@@ -178,7 +196,7 @@ public class SonarTask extends Task {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-        new URL[] { Utils.getJarPath() }, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        new URL[]{Utils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
         getClass().getClassLoader(),
         "org.apache.tools.ant", "org.sonar.ant");
   }

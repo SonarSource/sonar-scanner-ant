@@ -70,6 +70,8 @@ public class LauncherTest {
     antProject.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch");
     task.setKey("org.example:example");
     task.setVersion("0.1-SNAPSHOT");
+    File newBaseDir = new File("newBaseDir");
+    task.setBaseDir(newBaseDir);
 
     setProperty(task, CoreProperties.PROJECT_NAME_PROPERTY, "My project");
     setProperty(task, CoreProperties.PROJECT_DESCRIPTION_PROPERTY, "My description");
@@ -83,6 +85,7 @@ public class LauncherTest {
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_NAME_PROPERTY), is("My project"));
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY), is("My description"));
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY), is("branch"));
+    assertThat(sonarProject.getBaseDir(), is(newBaseDir));
   }
 
   private void setProperty(SonarTask task, String key, String value) {
