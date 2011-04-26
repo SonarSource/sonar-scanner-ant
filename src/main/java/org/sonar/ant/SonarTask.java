@@ -171,7 +171,7 @@ public class SonarTask extends Task {
 
   /**
    * Loads {@link Launcher} from specified {@link BootstrapClassLoader} and passes control to it.
-   *
+   * 
    * @see Launcher#execute()
    */
   private void delegateExecution(BootstrapClassLoader sonarClassLoader) {
@@ -196,7 +196,7 @@ public class SonarTask extends Task {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-        new URL[]{Utils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        new URL[] { Utils.getJarPath() }, // Add JAR with Sonar Ant task - it's a Jar which contains this class
         getClass().getClassLoader(),
         "org.apache.tools.ant", "org.sonar.ant");
   }
@@ -204,19 +204,22 @@ public class SonarTask extends Task {
   private void checkSonarVersion() {
     String serverVersion = bootstrapper.getServerVersion();
     log("Sonar version: " + serverVersion);
-    if (isVersionPriorTo2Dot6(serverVersion)) {
-      throw new BuildException("Sonar " + serverVersion + " does not support Ant. Please upgrade Sonar to version 2.6 or more.");
+    if (isVersionPriorTo2Dot8(serverVersion)) {
+      throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + getTaskVersion()
+          + ". Please upgrade Sonar to version 2.8 or more.");
     }
   }
 
-  static boolean isVersionPriorTo2Dot6(String version) {
+  static boolean isVersionPriorTo2Dot8(String version) {
     return isVersion(version, "1")
         || isVersion(version, "2.0")
         || isVersion(version, "2.1")
         || isVersion(version, "2.2")
         || isVersion(version, "2.3")
         || isVersion(version, "2.4")
-        || isVersion(version, "2.5");
+        || isVersion(version, "2.5")
+        || isVersion(version, "2.6")
+        || isVersion(version, "2.7");
   }
 
   private static boolean isVersion(String version, String prefix) {

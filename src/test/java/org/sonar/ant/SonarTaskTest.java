@@ -20,28 +20,30 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.Project;
-import org.junit.Test;
-
-import java.io.File;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
+import org.apache.tools.ant.Project;
+import org.junit.Test;
+
+import java.io.File;
+
 public class SonarTaskTest {
   @Test
   public void shouldCheckVersion() {
-    assertThat(SonarTask.isVersionPriorTo2Dot6("1.0"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.0"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.1"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.2"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.3"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.4"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.4.1"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.5"), is(true));
-    assertThat(SonarTask.isVersionPriorTo2Dot6("2.6"), is(false));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("1.0"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.0"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.1"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.2"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.3"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.4"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.4.1"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.5"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.6"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.7"), is(true));
+    assertThat(SonarTask.isVersionPriorTo2Dot8("2.8"), is(false));
   }
 
   @Test
