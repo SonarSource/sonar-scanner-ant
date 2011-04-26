@@ -133,8 +133,12 @@ public class Launcher {
   private void defineModules(Project antProject, ProjectDefinition definition) {
     String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
     for (String module : modules) {
+      ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread().setContextClassLoader(task.getClass().getClassLoader());
       Project antSubProject = antProject.createSubProject();
       ProjectHelper.configureProject(antSubProject, new File(module));
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
+
       definition.addModule(defineProject(antSubProject));
     }
   }
