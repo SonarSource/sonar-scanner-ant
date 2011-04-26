@@ -25,7 +25,10 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.Main;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
@@ -61,23 +64,26 @@ public class Launcher {
   }
 
   ProjectDefinition defineProject() {
+    Project antProject = task.getProject();
     Properties properties = new Properties();
     ProjectDefinition definition = new ProjectDefinition(task.getBaseDir(), task.getWorkDir(), properties);
+
+    definition.addContainerExtension(antProject);
 
     // Properties from task attributes
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, task.getKey());
     properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, task.getVersion());
     // Properties from project attributes
-    if (task.getProject().getName() != null) {
-      properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, task.getProject().getName());
+    if (antProject.getName() != null) {
+      properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, antProject.getName());
     }
-    if (task.getProject().getDescription() != null) {
-      properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, task.getProject().getDescription());
+    if (antProject.getDescription() != null) {
+      properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, antProject.getDescription());
     }
     // Properties from task
     properties.putAll(task.getProperties());
     // Properties from Ant
-    properties.putAll(task.getProject().getProperties());
+    properties.putAll(antProject.getProperties());
 
     // Source directories
     for (String dir : getPathAsList(task.createSources())) {
@@ -96,7 +102,41 @@ public class Launcher {
       definition.addLibrary(file);
     }
 
+    defineModules(antProject, definition);
+
     return definition;
+  }
+
+  private ProjectDefinition defineProject(Project antProject) {
+    File baseDir = antProject.getBaseDir();
+    File workDir = new File(baseDir, ".sonar");
+    Properties properties = new Properties();
+    ProjectDefinition definition = new ProjectDefinition(baseDir, workDir, properties);
+
+    definition.addContainerExtension(antProject);
+
+    // Properties from project attributes
+    if (antProject.getName() != null) {
+      properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, antProject.getName());
+    }
+    if (antProject.getDescription() != null) {
+      properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, antProject.getDescription());
+    }
+    // Properties from project
+    properties.putAll(antProject.getProperties());
+
+    defineModules(antProject, definition);
+
+    return definition;
+  }
+
+  private void defineModules(Project antProject, ProjectDefinition definition) {
+    String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
+    for (String module : modules) {
+      Project antSubProject = antProject.createSubProject();
+      ProjectHelper.configureProject(antSubProject, new File(module));
+      definition.addModule(defineProject(antSubProject));
+    }
   }
 
   private List<String> getPathAsList(Path path) {
@@ -114,8 +154,7 @@ public class Launcher {
   private void executeBatch() {
     ProjectDefinition project = defineProject();
     Reactor reactor = new Reactor(project);
-    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor,
-        task.getProject());
+    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor);
     batch.execute();
   }
 
