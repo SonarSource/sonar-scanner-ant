@@ -26,6 +26,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
@@ -133,13 +134,34 @@ public class Launcher {
   private void defineModules(Project antProject, ProjectDefinition definition) {
     String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
     for (String module : modules) {
-      ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(task.getClass().getClassLoader());
-      Project antSubProject = antProject.createSubProject();
-      ProjectHelper.configureProject(antSubProject, new File(module));
-      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
-
+      Project antSubProject = prepareSubProject(antProject, new File(module));
       definition.addModule(defineProject(antSubProject));
+    }
+  }
+
+  private Project prepareSubProject(Project antProject, File buildFile) {
+    ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(task.getClass().getClassLoader());
+
+      Project antSubProject = antProject.createSubProject();
+      ProjectHelper.configureProject(antSubProject, buildFile);
+      antSubProject.init();
+
+      if (StringUtils.isNotBlank(task.getInitTarget())) {
+        // Attaches the build listeners of the current project to the new project
+        Iterator iter = antProject.getBuildListeners().iterator();
+        while (iter.hasNext()) {
+          antSubProject.addBuildListener((BuildListener) iter.next());
+        }
+        // Executes initialization target
+        antSubProject.executeTarget(task.getInitTarget());
+      }
+
+      return antSubProject;
+
+    } finally {
+      Thread.currentThread().setContextClassLoader(oldContextClassLoader);
     }
   }
 

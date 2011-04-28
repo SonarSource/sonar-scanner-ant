@@ -52,6 +52,8 @@ public class SonarTask extends Task {
 
   private Bootstrapper bootstrapper;
 
+  private String initTarget;
+
   /**
    * @return value of property "sonar.host.url", default is "http://localhost:9000"
    */
@@ -96,6 +98,20 @@ public class SonarTask extends Task {
       baseDir = getProject().getBaseDir();
     }
     return baseDir;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public void setInitTarget(String initTarget) {
+    this.initTarget = initTarget;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public String getInitTarget() {
+    return initTarget;
   }
 
   public void setKey(String key) {
