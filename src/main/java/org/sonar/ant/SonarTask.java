@@ -68,8 +68,12 @@ public class SonarTask extends Task {
     return serverUrl;
   }
 
+  /**
+   * @deprecated in 1.1
+   */
+  @Deprecated
   public void setWorkDir(File workDir) {
-    this.workDir = workDir;
+    // this.workDir = workDir;
   }
 
   /**
