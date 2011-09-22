@@ -20,16 +20,33 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.resources.Union;
+import org.junit.Test;
 
 public class UtilsTest {
+
+  @Test
+  public void test() {
+    Project project = mock(Project.class);
+    Path path1 = new Path(project);
+    path1.setPath("/tmp/foo.jar");
+    Path path2 = new Path(project);
+    path2.setPath("/tmp/bar.jar");
+    Union union = new Union();
+    union.add(path1);
+    union.add(path2);
+
+    assertThat(Utils.convertResourceCollectionToString(union), is("/tmp/foo.jar,/tmp/bar.jar"));
+  }
 
   @Test
   public void shouldGetJarPath() {

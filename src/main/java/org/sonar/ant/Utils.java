@@ -20,19 +20,29 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.BuildListener;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.BuildListener;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.ResourceCollection;
+import org.apache.tools.ant.types.resources.Union;
+
 public final class Utils {
 
   private Utils() {
     // only static methods
+  }
+
+  /**
+   * @since 1.2
+   */
+  public static String convertResourceCollectionToString(ResourceCollection c) {
+    return StringUtils.join(new Union(c).list(), ',');
   }
 
   /**

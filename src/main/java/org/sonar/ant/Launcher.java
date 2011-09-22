@@ -20,9 +20,13 @@
 
 package org.sonar.ant;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +36,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
+import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -41,12 +46,9 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.bootstrapper.Reactor;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 
 public class Launcher {
 
@@ -85,6 +87,7 @@ public class Launcher {
     properties.putAll(task.getProperties());
     // Properties from Ant
     properties.putAll(antProject.getProperties());
+    setPathProperties(properties, antProject);
 
     // Source directories
     for (String dir : getPathAsList(task.createSources())) {
@@ -125,10 +128,32 @@ public class Launcher {
     }
     // Properties from project
     properties.putAll(antProject.getProperties());
+    setPathProperties(properties, antProject);
 
     defineModules(antProject, definition);
 
     return definition;
+  }
+
+  /**
+   * @since 1.2
+   */
+  private void setPathProperties(Properties properties, Project antProject) {
+    setPathProperty(properties, antProject, "sonar.libraries");
+  }
+
+  /**
+   * @since 1.2
+   */
+  private void setPathProperty(Properties properties, Project antProject, String refid) {
+    if (antProject.getReference(refid) == null) {
+      return;
+    }
+    Object reference = antProject.getReference(refid);
+    if (!(reference instanceof ResourceCollection)) {
+
+    }
+    properties.setProperty(refid, Utils.convertResourceCollectionToString((ResourceCollection) reference));
   }
 
   private void defineModules(Project antProject, ProjectDefinition definition) {
