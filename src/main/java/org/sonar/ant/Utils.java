@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -42,7 +41,15 @@ public final class Utils {
    * @since 1.2
    */
   public static String convertResourceCollectionToString(ResourceCollection c) {
-    return StringUtils.join(new Union(c).list(), ',');
+    String[] list = new Union(c).list();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < list.length; i++) {
+      if (i > 0) {
+        sb.append(',');
+      }
+      sb.append(list[i]);
+    }
+    return sb.toString();
   }
 
   /**
