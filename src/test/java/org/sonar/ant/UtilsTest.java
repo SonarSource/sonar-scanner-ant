@@ -26,6 +26,8 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.io.File;
+
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
@@ -35,17 +37,19 @@ import org.junit.Test;
 public class UtilsTest {
 
   @Test
-  public void test() {
+  public void shouldConvertResourceCollectionToString() {
     Project project = mock(Project.class);
     Path path1 = new Path(project);
-    path1.setPath("/tmp/foo.jar");
+    File file1 = new File("foo.jar");
+    path1.setLocation(file1);
     Path path2 = new Path(project);
-    path2.setPath("/tmp/bar.jar");
+    File file2 = new File("bar.jar");
+    path1.setLocation(file2);
     Union union = new Union();
     union.add(path1);
     union.add(path2);
 
-    assertThat(Utils.convertResourceCollectionToString(union), is("/tmp/foo.jar,/tmp/bar.jar"));
+    assertThat(Utils.convertResourceCollectionToString(union), is(file1.getAbsolutePath() + "," + file2.getAbsolutePath()));
   }
 
   @Test
