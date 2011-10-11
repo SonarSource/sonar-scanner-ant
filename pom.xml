@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>sonar-ant-task</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
 
   <name>Sonar Ant Task</name>
   <description />
@@ -40,9 +40,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/ant-task</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/ant-task</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
+    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/tags/sonar-ant-task-1.2</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-ant-task-1.2</developerConnection>
+    <url>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-ant-task-1.2</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
@@ -145,7 +145,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore></ignore>
+                        <ignore />
                       </action>
                     </pluginExecution>
                   </pluginExecutions>
