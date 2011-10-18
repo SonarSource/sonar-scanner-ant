@@ -62,8 +62,12 @@ public class Launcher {
    * This method invoked from {@link SonarTask}.
    */
   public void execute() {
-    initLogging();
-    executeBatch();
+    ProjectDefinition project = defineProject();
+    Reactor reactor = new Reactor(project);
+    Configuration config = getInitialConfiguration(project);
+    initLogging(config);
+    Batch batch = new Batch(config, new EnvironmentInformation("Ant", Main.getAntVersion()), reactor);
+    batch.execute();
   }
 
   ProjectDefinition defineProject() {
@@ -203,21 +207,15 @@ public class Launcher {
     return result;
   }
 
-  private void executeBatch() {
-    ProjectDefinition project = defineProject();
-    Reactor reactor = new Reactor(project);
-    Batch batch = new Batch(getInitialConfiguration(project), new EnvironmentInformation("Ant", Main.getAntVersion()), reactor);
-    batch.execute();
-  }
-
-  private void initLogging() {
+  private void initLogging(Configuration config) {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     JoranConfigurator jc = new JoranConfigurator();
     jc.setContext(context);
     context.reset();
     InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml");
 
-    System.setProperty("ROOT_LOGGER_LEVEL", getLoggerLevel());
+    String level = getLoggerLevel(config);
+    System.setProperty("ROOT_LOGGER_LEVEL", level);
     try {
       jc.doConfigure(input);
 
@@ -229,7 +227,11 @@ public class Launcher {
     }
   }
 
-  private String getLoggerLevel() {
+  String getLoggerLevel(Configuration config) {
+    if (config.getBoolean("sonar.verbose", false)) {
+      return "DEBUG";
+    }
+    
     int antLoggerLevel = Utils.getAntLoggerLever(task.getProject());
     switch (antLoggerLevel) {
       case 3:

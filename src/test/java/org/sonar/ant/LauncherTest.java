@@ -20,6 +20,7 @@
 
 package org.sonar.ant;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Environment;
 import org.junit.Before;
@@ -86,6 +87,25 @@ public class LauncherTest {
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY), is("My description"));
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY), is("branch"));
     assertThat(sonarProject.getBaseDir(), is(newBaseDir));
+  }
+
+  @Test
+  public void defaultLogLevelShouldBeInfo() {
+    assertThat(launcher.getLoggerLevel(new PropertiesConfiguration()), is("INFO"));
+  }
+
+  @Test
+  public void shouldEnableVerboseMode() {
+    PropertiesConfiguration config = new PropertiesConfiguration();
+    config.setProperty("sonar.verbose", "true");
+    assertThat(launcher.getLoggerLevel(config), is("DEBUG"));
+  }
+
+  @Test
+  public void shouldDisableVerboseMode() {
+    PropertiesConfiguration config = new PropertiesConfiguration();
+    config.setProperty("sonar.verbose", "false");
+    assertThat(launcher.getLoggerLevel(config), is("INFO"));
   }
 
   private void setProperty(SonarTask task, String key, String value) {
