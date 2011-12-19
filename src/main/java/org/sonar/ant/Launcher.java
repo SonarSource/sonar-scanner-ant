@@ -154,9 +154,6 @@ public class Launcher {
       return;
     }
     Object reference = antProject.getReference(refid);
-    if (!(reference instanceof ResourceCollection)) {
-
-    }
     properties.setProperty(refid, Utils.convertResourceCollectionToString((ResourceCollection) reference));
   }
 

@@ -23,8 +23,7 @@ package org.sonar.ant;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Vector;
-
+import java.util.List;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -92,7 +91,7 @@ public final class Utils {
    */
   public static int getAntLoggerLever(Project project) {
     try {
-      Vector<BuildListener> listeners = project.getBuildListeners();
+      List<BuildListener> listeners = project.getBuildListeners();
       for (BuildListener listener : listeners) {
         if (listener instanceof DefaultLogger) {
           DefaultLogger logger = (DefaultLogger) listener;

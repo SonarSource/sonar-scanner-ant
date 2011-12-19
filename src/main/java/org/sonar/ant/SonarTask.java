@@ -38,6 +38,11 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
+  /**
+   * Array of prefixes of versions of Sonar without support of this Ant Task.
+   */
+  private static final String[] UNSUPPORTED_VERSIONS = { "1", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7" };
+
   private static final String HOST_PROPERTY = "sonar.host.url";
 
   private File workDir;
@@ -66,14 +71,6 @@ public class SonarTask extends Task {
       serverUrl = "http://localhost:9000"; // default
     }
     return serverUrl;
-  }
-
-  /**
-   * @deprecated in 1.1
-   */
-  @Deprecated
-  public void setWorkDir(File workDir) {
-    // this.workDir = workDir;
   }
 
   /**
@@ -231,15 +228,12 @@ public class SonarTask extends Task {
   }
 
   static boolean isVersionPriorTo2Dot8(String version) {
-    return isVersion(version, "1")
-        || isVersion(version, "2.0")
-        || isVersion(version, "2.1")
-        || isVersion(version, "2.2")
-        || isVersion(version, "2.3")
-        || isVersion(version, "2.4")
-        || isVersion(version, "2.5")
-        || isVersion(version, "2.6")
-        || isVersion(version, "2.7");
+    for (String unsupportedVersion : UNSUPPORTED_VERSIONS) {
+      if (isVersion(version, unsupportedVersion)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean isVersion(String version, String prefix) {
