@@ -20,13 +20,9 @@
 
 package org.sonar.ant;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,9 +42,12 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.bootstrapper.Reactor;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class Launcher {
 
@@ -194,7 +193,7 @@ public class Launcher {
 
   private List<String> getPathAsList(Path path) {
     List<String> result = new ArrayList<String>();
-    for (Iterator<?> i = path.iterator(); i.hasNext();) {
+    for (Iterator<?> i = path.iterator(); i.hasNext(); ) {
       Resource resource = (Resource) i.next();
       if (resource instanceof FileResource) {
         File fileResource = ((FileResource) resource).getFile();
@@ -204,31 +203,38 @@ public class Launcher {
     return result;
   }
 
+  /**
+   * TODO This method should use the component org.sonar.batch.bootstrapper.LoggingConfiguration
+   * created in sonar 2.14. It requires that the minimum supported version of sonar is 2.14, but
+   * it's currently 2.8.
+   */
   private void initLogging(Configuration config) {
-    LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-    JoranConfigurator jc = new JoranConfigurator();
-    jc.setContext(context);
-    context.reset();
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     InputStream input = Batch.class.getResourceAsStream("/org/sonar/batch/logback.xml");
-
-    String level = getLoggerLevel(config);
-    System.setProperty("ROOT_LOGGER_LEVEL", level);
     try {
-      jc.doConfigure(input);
-
+      JoranConfigurator configurator = new JoranConfigurator();
+      configurator.setContext(lc);
+      lc.reset();
+      lc.putProperty("ROOT_LOGGER_LEVEL", getLoggerLevel(config));
+      lc.putProperty("SQL_LOGGER_LEVEL", getSqlLevel(config));//since 2.14. Ignored on previous versions.
+      configurator.doConfigure(input);
     } catch (JoranException e) {
       throw new SonarException("Can not initialize logging", e);
-
     } finally {
       IOUtils.closeQuietly(input);
     }
+  }
+
+  private String getSqlLevel(Configuration config) {
+    boolean showSql = config.getBoolean("sonar.showSql", false);
+    return showSql ? "DEBUG" : "WARN";
   }
 
   String getLoggerLevel(Configuration config) {
     if (config.getBoolean("sonar.verbose", false)) {
       return "DEBUG";
     }
-    
+
     int antLoggerLevel = Utils.getAntLoggerLever(task.getProject());
     switch (antLoggerLevel) {
       case 3:
