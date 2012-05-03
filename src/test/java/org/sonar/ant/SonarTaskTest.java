@@ -20,17 +20,23 @@
 
 package org.sonar.ant;
 
+import org.apache.tools.ant.Project;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import java.io.File;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-import org.apache.tools.ant.Project;
-import org.junit.Test;
-
-import java.io.File;
-
 public class SonarTaskTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void shouldCheckVersion() {
     assertThat(SonarTask.isVersionPriorTo2Dot8("1.0"), is(true));
@@ -59,6 +65,30 @@ public class SonarTaskTest {
     task.setProject(new Project());
     assertThat(task.getServerUrl(), is("http://localhost:9000"));
     assertThat(task.getWorkDir(), is(new File(task.getProject().getBaseDir(), ".sonar")));
+  }
+
+  @Test
+  public void shouldFailIfMandatoryPropertiesMissing() {
+    SonarTask task = new SonarTask();
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("The following mandatory information is missing:");
+    thrown.expectMessage("- task attribute 'key'");
+    thrown.expectMessage("- task attribute 'version'");
+    thrown.expectMessage("- task attribute 'sources' or property 'sonar.sources'");
+
+    task.checkMandatoryProperties();
+  }
+
+  @Test
+  public void shouldNotFailIfMandatoryPropertiesPresent() {
+    SonarTask task = new SonarTask();
+    task.setKey("foo");
+    task.setVersion("2");
+    System.setProperty("sonar.sources", "src");
+
+    task.checkMandatoryProperties();
+
+    System.clearProperty("sonar.sources");
   }
 
 }

@@ -20,7 +20,11 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.*;
+import org.apache.tools.ant.BuildEvent;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Main;
+import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Path;
 import org.sonar.batch.bootstrapper.BootstrapClassLoader;
@@ -34,6 +38,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 public class SonarTask extends Task {
@@ -41,7 +47,7 @@ public class SonarTask extends Task {
   /**
    * Array of prefixes of versions of Sonar without support of this Ant Task.
    */
-  private static final String[] UNSUPPORTED_VERSIONS = { "1", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7" };
+  private static final String[] UNSUPPORTED_VERSIONS = {"1", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"};
 
   private static final String HOST_PROPERTY = "sonar.host.url";
 
@@ -181,9 +187,31 @@ public class SonarTask extends Task {
     log("Loaded from: " + Utils.getJarPath());
     log("Sonar work directory: " + getWorkDir().getAbsolutePath());
     log("Sonar server: " + getServerUrl());
+    checkMandatoryProperties();
     bootstrapper = new Bootstrapper("AntTask/" + getTaskVersion(), getServerUrl(), getWorkDir());
     checkSonarVersion();
     delegateExecution(createClassLoader());
+  }
+
+  protected void checkMandatoryProperties() {
+    Collection<String> missingProps = new ArrayList<String>();
+    if (key == null || key.equals("")) {
+      missingProps.add("\n  - task attribute 'key'");
+    }
+    if (version == null || version.equals("")) {
+      missingProps.add("\n  - task attribute 'version'");
+    }
+    String sonarSourcesProp = System.getProperty("sonar.sources");
+    if (sources == null && (sonarSourcesProp == null || sonarSourcesProp.equals(""))) {
+      missingProps.add("\n  - task attribute 'sources' or property 'sonar.sources'");
+    }
+    if (missingProps.size() > 0) {
+      StringBuilder message = new StringBuilder("\nThe following mandatory information is missing:");
+      for (String prop : missingProps) {
+        message.append(prop);
+      }
+      throw new IllegalArgumentException(message.toString());
+    }
   }
 
   /**
@@ -213,7 +241,7 @@ public class SonarTask extends Task {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-        new URL[] { Utils.getJarPath() }, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        new URL[] {Utils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
         getClass().getClassLoader(),
         "org.apache.tools.ant", "org.sonar.ant");
   }
@@ -223,7 +251,7 @@ public class SonarTask extends Task {
     log("Sonar version: " + serverVersion);
     if (isVersionPriorTo2Dot8(serverVersion)) {
       throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + getTaskVersion()
-          + ". Please upgrade Sonar to version 2.8 or more.");
+        + ". Please upgrade Sonar to version 2.8 or more.");
     }
   }
 
