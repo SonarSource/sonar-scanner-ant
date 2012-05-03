@@ -23,7 +23,11 @@ package org.sonar.ant;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.EnvironmentConfiguration;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildListener;
@@ -193,7 +197,7 @@ public class Launcher {
 
   private List<String> getPathAsList(Path path) {
     List<String> result = new ArrayList<String>();
-    for (Iterator<?> i = path.iterator(); i.hasNext(); ) {
+    for (Iterator<?> i = path.iterator(); i.hasNext();) {
       Resource resource = (Resource) i.next();
       if (resource instanceof FileResource) {
         File fileResource = ((FileResource) resource).getFile();
@@ -216,7 +220,8 @@ public class Launcher {
       configurator.setContext(lc);
       lc.reset();
       lc.putProperty("ROOT_LOGGER_LEVEL", getLoggerLevel(config));
-      lc.putProperty("SQL_LOGGER_LEVEL", getSqlLevel(config));//since 2.14. Ignored on previous versions.
+      lc.putProperty("SQL_LOGGER_LEVEL", getSqlLevel(config));// since 2.14. Ignored on previous versions.
+      lc.putProperty("SQL_RESULTS_LOGGER_LEVEL", getSqlResultsLevel(config));// since 2.14. Ignored on previous versions.
       configurator.doConfigure(input);
     } catch (JoranException e) {
       throw new SonarException("Can not initialize logging", e);
@@ -225,8 +230,13 @@ public class Launcher {
     }
   }
 
-  private String getSqlLevel(Configuration config) {
+  protected static String getSqlLevel(Configuration config) {
     boolean showSql = config.getBoolean("sonar.showSql", false);
+    return showSql ? "DEBUG" : "WARN";
+  }
+
+  protected static String getSqlResultsLevel(Configuration config) {
+    boolean showSql = config.getBoolean("sonar.showSqlResults", false);
     return showSql ? "DEBUG" : "WARN";
   }
 

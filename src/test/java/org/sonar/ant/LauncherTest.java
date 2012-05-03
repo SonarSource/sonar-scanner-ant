@@ -20,6 +20,8 @@
 
 package org.sonar.ant;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Environment;
@@ -113,5 +115,31 @@ public class LauncherTest {
     var.setKey(key);
     var.setValue(value);
     task.addConfiguredProperty(var);
+  }
+
+  @Test
+  public void testGetSqlLevel() throws Exception {
+    Configuration conf = new BaseConfiguration();
+
+    assertThat(Launcher.getSqlLevel(conf), is("WARN"));
+
+    conf.setProperty("sonar.showSql", "true");
+    assertThat(Launcher.getSqlLevel(conf), is("DEBUG"));
+
+    conf.setProperty("sonar.showSql", "false");
+    assertThat(Launcher.getSqlLevel(conf), is("WARN"));
+  }
+
+  @Test
+  public void testGetSqlResultsLevel() throws Exception {
+    Configuration conf = new BaseConfiguration();
+
+    assertThat(Launcher.getSqlResultsLevel(conf), is("WARN"));
+
+    conf.setProperty("sonar.showSqlResults", "true");
+    assertThat(Launcher.getSqlResultsLevel(conf), is("DEBUG"));
+
+    conf.setProperty("sonar.showSqlResults", "false");
+    assertThat(Launcher.getSqlResultsLevel(conf), is("WARN"));
   }
 }
