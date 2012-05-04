@@ -116,4 +116,15 @@ public class SonarTaskTest {
     task.checkMandatoryProperties();
   }
 
+  @Test
+  public void shouldNotFailIfMandatoryPropertiesNotPresentButMultiModules() {
+    SonarTask task = new SonarTask();
+    task.getProperties().put("sonar.modules", "foo/build.xml,bar/build.xml");
+    task.setProject(new Project());
+    task.setKey("foo");
+    task.setVersion("2");
+
+    task.checkMandatoryProperties();
+  }
+
 }

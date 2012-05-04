@@ -26,7 +26,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Environment;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 
@@ -37,6 +39,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class LauncherTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   private Project antProject;
   private SonarTask task;
   private Launcher launcher;
@@ -141,5 +147,24 @@ public class LauncherTest {
 
     conf.setProperty("sonar.showSqlResults", "false");
     assertThat(Launcher.getSqlResultsLevel(conf), is("WARN"));
+  }
+
+  @Test
+  public void shouldFailIfMandatoryPropertiesMissing() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("The following mandatory information is missing:");
+    thrown.expectMessage("- property 'sonar.sources'");
+    thrown.expectMessage("- property 'sonar.projectKey'");
+
+    Launcher.checkAntProjectForMandatoryProperties(new Project());
+  }
+
+  @Test
+  public void shouldNotFailIfMandatoryPropertiesPresent() {
+    Project antProject = new Project();
+    antProject.setProperty("sonar.sources", "src");
+    antProject.setProperty("sonar.projectKey", "foo");
+
+    Launcher.checkAntProjectForMandatoryProperties(antProject);
   }
 }

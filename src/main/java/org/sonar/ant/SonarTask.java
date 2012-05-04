@@ -203,7 +203,7 @@ public class SonarTask extends Task {
     if (isEmpty(version)) {
       missingProps.add("\n  - task attribute 'version'");
     }
-    if (isSourceInfoMissing()) {
+    if (isNotFound("sonar.modules") && isSourceInfoMissing()) {
       missingProps.add("\n  - task attribute 'sources' or property 'sonar.sources'");
     }
     if (!missingProps.isEmpty()) {
@@ -215,11 +215,15 @@ public class SonarTask extends Task {
     }
   }
 
+  private boolean isNotFound(String string) {
+    String systemProp = System.getProperty(string);
+    String projectProp = getProject().getProperty(string);
+    String taskProp = getProperties().getProperty(string);
+    return isEmpty(systemProp) && isEmpty(projectProp) && isEmpty(taskProp);
+  }
+
   private boolean isSourceInfoMissing() {
-    String systemProp = System.getProperty(SONAR_SOURCES_PROPERTY);
-    String projectProp = getProject().getProperty(SONAR_SOURCES_PROPERTY);
-    String taskProp = getProperties().getProperty(SONAR_SOURCES_PROPERTY);
-    return sources == null && isEmpty(systemProp) && isEmpty(taskProp) && isEmpty(projectProp);
+    return sources == null && isNotFound(SONAR_SOURCES_PROPERTY);
   }
 
   private boolean isEmpty(String string) {

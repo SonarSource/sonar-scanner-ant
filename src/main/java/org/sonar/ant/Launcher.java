@@ -49,6 +49,7 @@ import org.sonar.batch.bootstrapper.Reactor;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -123,6 +124,8 @@ public class Launcher {
   }
 
   private ProjectDefinition defineProject(Project antProject) {
+    checkAntProjectForMandatoryProperties(antProject);
+
     File baseDir = antProject.getBaseDir();
     File workDir = new File(baseDir, ".sonar");
     Properties properties = new Properties();
@@ -144,6 +147,28 @@ public class Launcher {
     defineModules(antProject, definition);
 
     return definition;
+  }
+
+  protected static void checkAntProjectForMandatoryProperties(Project antProject) {
+    // for submodule, only the "sonar.projectKey" and "sonar.sources" property are mandatory
+    Collection<String> missingProps = new ArrayList<String>();
+    if (isEmpty(antProject.getProperty("sonar.projectKey"))) {
+      missingProps.add("\n  - property 'sonar.projectKey'");
+    }
+    if (isEmpty(antProject.getProperty("sonar.sources"))) {
+      missingProps.add("\n  - property 'sonar.sources'");
+    }
+    if (!missingProps.isEmpty()) {
+      StringBuilder message = new StringBuilder("\nThe following mandatory information is missing:");
+      for (String prop : missingProps) {
+        message.append(prop);
+      }
+      throw new IllegalArgumentException(message.toString());
+    }
+  }
+
+  private static boolean isEmpty(String string) {
+    return string == null || "".equals(string);
   }
 
   /**
