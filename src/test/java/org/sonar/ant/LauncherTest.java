@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Properties;
@@ -166,5 +167,22 @@ public class LauncherTest {
     antProject.setProperty("sonar.projectKey", "foo");
 
     Launcher.checkAntProjectForMandatoryProperties(antProject);
+  }
+
+  @Test
+  public void shouldFindSubModuleBuildFileWithModuleAbsolutePath() {
+    File buildFile = TestUtils.getResource("org/sonar/ant/LauncherTest/build.xml");
+
+    File foundFile = Launcher.findSubModuleBuildFile(new Project(), buildFile.getAbsolutePath());
+    assertThat(foundFile, is(buildFile));
+  }
+
+  @Test
+  public void shouldFindSubModuleBuildFileWithModuleRelativePath() {
+    Project antProject = new Project();
+    antProject.setBaseDir(TestUtils.getResource("org/sonar/ant"));
+
+    File foundFile = Launcher.findSubModuleBuildFile(antProject, "LauncherTest/build.xml");
+    assertThat(foundFile, is(TestUtils.getResource("org/sonar/ant/LauncherTest/build.xml")));
   }
 }

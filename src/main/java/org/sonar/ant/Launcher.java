@@ -192,10 +192,18 @@ public class Launcher {
   private void defineModules(Project antProject, ProjectDefinition definition) {
     String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
     for (String module : modules) {
-      File buildFile = new File(antProject.getBaseDir(), module);
+      File buildFile = findSubModuleBuildFile(antProject, module);
       Project antSubProject = prepareSubProject(antProject, buildFile);
       definition.addModule(defineProject(antSubProject));
     }
+  }
+
+  protected static File findSubModuleBuildFile(Project antProject, String module) {
+    File buildFile = new File(module);
+    if (!buildFile.isAbsolute()) {
+      buildFile = new File(antProject.getBaseDir(), module);
+    }
+    return buildFile;
   }
 
   private Project prepareSubProject(Project antProject, File buildFile) {
