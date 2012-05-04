@@ -44,6 +44,8 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
+  private static final String SONAR_SOURCES_PROPERTY = "sonar.sources";
+
   /**
    * Array of prefixes of versions of Sonar without support of this Ant Task.
    */
@@ -201,8 +203,7 @@ public class SonarTask extends Task {
     if (isEmpty(version)) {
       missingProps.add("\n  - task attribute 'version'");
     }
-    String sonarSourcesProp = System.getProperty("sonar.sources");
-    if (sources == null && (isEmpty(sonarSourcesProp))) {
+    if (isSourceInfoMissing()) {
       missingProps.add("\n  - task attribute 'sources' or property 'sonar.sources'");
     }
     if (!missingProps.isEmpty()) {
@@ -212,6 +213,13 @@ public class SonarTask extends Task {
       }
       throw new IllegalArgumentException(message.toString());
     }
+  }
+
+  private boolean isSourceInfoMissing() {
+    String systemProp = System.getProperty(SONAR_SOURCES_PROPERTY);
+    String projectProp = getProject().getProperty(SONAR_SOURCES_PROPERTY);
+    String taskProp = getProperties().getProperty(SONAR_SOURCES_PROPERTY);
+    return sources == null && isEmpty(systemProp) && isEmpty(taskProp) && isEmpty(projectProp);
   }
 
   private boolean isEmpty(String string) {

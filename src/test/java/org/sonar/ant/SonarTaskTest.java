@@ -70,6 +70,7 @@ public class SonarTaskTest {
   @Test
   public void shouldFailIfMandatoryPropertiesMissing() {
     SonarTask task = new SonarTask();
+    task.setProject(new Project());
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("The following mandatory information is missing:");
     thrown.expectMessage("- task attribute 'key'");
@@ -80,8 +81,9 @@ public class SonarTaskTest {
   }
 
   @Test
-  public void shouldNotFailIfMandatoryPropertiesPresent() {
+  public void shouldNotFailIfMandatoryPropertiesPresentWithSystemProp() {
     SonarTask task = new SonarTask();
+    task.setProject(new Project());
     task.setKey("foo");
     task.setVersion("2");
     System.setProperty("sonar.sources", "src");
@@ -89,6 +91,29 @@ public class SonarTaskTest {
     task.checkMandatoryProperties();
 
     System.clearProperty("sonar.sources");
+  }
+
+  @Test
+  public void shouldNotFailIfMandatoryPropertiesPresentWithProjectProp() {
+    SonarTask task = new SonarTask();
+    Project project = new Project();
+    project.setProperty("sonar.sources", "src");
+    task.setProject(project);
+    task.setKey("foo");
+    task.setVersion("2");
+
+    task.checkMandatoryProperties();
+  }
+
+  @Test
+  public void shouldNotFailIfMandatoryPropertiesPresentWithTaskProp() {
+    SonarTask task = new SonarTask();
+    task.getProperties().put("sonar.sources", "src");
+    task.setProject(new Project());
+    task.setKey("foo");
+    task.setVersion("2");
+
+    task.checkMandatoryProperties();
   }
 
 }
