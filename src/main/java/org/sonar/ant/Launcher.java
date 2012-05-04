@@ -55,6 +55,10 @@ import java.util.Properties;
 
 public class Launcher {
 
+  private static final String INFO = "INFO";
+  private static final String WARN = "WARN";
+  private static final String DEBUG = "DEBUG";
+  private static final String TRACE = "TRACE";
   private SonarTask task;
 
   public Launcher(SonarTask task) {
@@ -230,29 +234,19 @@ public class Launcher {
     }
   }
 
-  protected static String getSqlLevel(Configuration config) {
-    boolean showSql = config.getBoolean("sonar.showSql", false);
-    return showSql ? "DEBUG" : "WARN";
-  }
-
-  protected static String getSqlResultsLevel(Configuration config) {
-    boolean showSql = config.getBoolean("sonar.showSqlResults", false);
-    return showSql ? "DEBUG" : "WARN";
-  }
-
   String getLoggerLevel(Configuration config) {
     if (config.getBoolean("sonar.verbose", false)) {
-      return "DEBUG";
+      return DEBUG;
     }
 
     int antLoggerLevel = Utils.getAntLoggerLever(task.getProject());
     switch (antLoggerLevel) {
       case 3:
-        return "DEBUG";
+        return DEBUG;
       case 4:
-        return "TRACE";
+        return TRACE;
       default:
-        return "INFO";
+        return INFO;
     }
   }
 
@@ -262,6 +256,16 @@ public class Launcher {
     configuration.addConfiguration(new EnvironmentConfiguration());
     configuration.addConfiguration(new MapConfiguration(project.getProperties()));
     return configuration;
+  }
+
+  protected static String getSqlLevel(Configuration config) {
+    boolean showSql = config.getBoolean("sonar.showSql", false);
+    return showSql ? DEBUG : WARN;
+  }
+
+  protected static String getSqlResultsLevel(Configuration config) {
+    boolean showSql = config.getBoolean("sonar.showSqlResults", false);
+    return showSql ? DEBUG : WARN;
   }
 
 }

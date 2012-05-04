@@ -195,23 +195,27 @@ public class SonarTask extends Task {
 
   protected void checkMandatoryProperties() {
     Collection<String> missingProps = new ArrayList<String>();
-    if (key == null || key.equals("")) {
+    if (isEmpty(key)) {
       missingProps.add("\n  - task attribute 'key'");
     }
-    if (version == null || version.equals("")) {
+    if (isEmpty(version)) {
       missingProps.add("\n  - task attribute 'version'");
     }
     String sonarSourcesProp = System.getProperty("sonar.sources");
-    if (sources == null && (sonarSourcesProp == null || sonarSourcesProp.equals(""))) {
+    if (sources == null && (isEmpty(sonarSourcesProp))) {
       missingProps.add("\n  - task attribute 'sources' or property 'sonar.sources'");
     }
-    if (missingProps.size() > 0) {
+    if (!missingProps.isEmpty()) {
       StringBuilder message = new StringBuilder("\nThe following mandatory information is missing:");
       for (String prop : missingProps) {
         message.append(prop);
       }
       throw new IllegalArgumentException(message.toString());
     }
+  }
+
+  private boolean isEmpty(String string) {
+    return string == null || "".equals(string);
   }
 
   /**
