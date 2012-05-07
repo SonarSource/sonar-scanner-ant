@@ -20,9 +20,7 @@
 
 package org.sonar.ant;
 
-import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Environment;
@@ -179,7 +177,7 @@ public class SonarTask extends Task {
   }
 
   /**
-   * Note about how Ant handles exceptions: according to {@link DefaultLogger#buildFinished(BuildEvent)} if we want to print stack trace,
+   * Note about how Ant handles exceptions: according to "DefaultLogger#buildFinished(BuildEvent)" if we want to print stack trace,
    * then we shouldn't use {@link BuildException} with message.
    */
   @Override
