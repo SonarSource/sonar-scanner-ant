@@ -36,7 +36,6 @@ import org.sonar.test.TestUtils;
 import java.io.File;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -185,24 +184,5 @@ public class LauncherTest {
 
     File foundFile = Launcher.findSubModuleBuildFile(antProject, "LauncherTest/build.xml");
     assertThat(foundFile, is(TestUtils.getResource("org/sonar/ant/LauncherTest/build.xml")));
-  }
-
-  @Test
-  public void shouldCopyMissingPropertiesButNotSonarModules() throws Exception {
-    antProject.setProperty("basedir", "/tmp/foo");
-    antProject.setProperty("ant.file", "my-build.xml");
-    antProject.setProperty("sonar.sources", "src/main/js");
-    antProject.setProperty("sonar.tests", "src/test/js");
-    antProject.setProperty("sonar.modules", "foo, bar");
-
-    Project subProject = new Project();
-    subProject.setProperty("sonar.sources", "src/main/java");
-
-    launcher.copyMissingProperties(antProject, subProject);
-    assertThat(subProject.getProperty("basedir")).isNull();
-    assertThat(subProject.getProperty("ant.file")).isNull();
-    assertThat(subProject.getProperty("sonar.modules")).isNull();
-    assertThat(subProject.getProperty("sonar.sources")).isEqualTo("src/main/java");
-    assertThat(subProject.getProperty("sonar.tests")).isEqualTo("src/test/js");
   }
 }
