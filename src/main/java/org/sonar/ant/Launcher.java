@@ -23,6 +23,7 @@ package org.sonar.ant;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.EnvironmentConfiguration;
@@ -31,6 +32,7 @@ import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildListener;
+import org.apache.tools.ant.MagicNames;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
@@ -50,12 +52,15 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
 public class Launcher {
 
+  private static final String SONAR_MODULES_PROPERTY = "sonar.modules";
   private static final String INFO = "INFO";
   private static final String WARN = "WARN";
   private static final String DEBUG = "DEBUG";
@@ -190,7 +195,7 @@ public class Launcher {
   }
 
   private void defineModules(Project antProject, ProjectDefinition definition) {
-    String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
+    String[] modules = StringUtils.split(definition.getProperties().getProperty(SONAR_MODULES_PROPERTY, ""), ',');
     for (String module : StringUtils.stripAll(modules)) {
       File buildFile = findSubModuleBuildFile(antProject, module);
       Project antSubProject = prepareSubProject(antProject, buildFile);
@@ -212,6 +217,7 @@ public class Launcher {
       Thread.currentThread().setContextClassLoader(task.getClass().getClassLoader());
 
       Project antSubProject = antProject.createSubProject();
+      copyMissingProperties(antProject, antSubProject);
       ProjectHelper.configureProject(antSubProject, buildFile);
       antSubProject.init();
 
@@ -229,6 +235,30 @@ public class Launcher {
 
     } finally {
       Thread.currentThread().setContextClassLoader(oldContextClassLoader);
+    }
+  }
+
+  /*
+   * Method copied from org.apache.tools.ant.taskdefs.Ant#addAlmostAll(...), with an extra to exclude "sonar.modules" property
+   * from being copied too.
+   */
+  @VisibleForTesting
+  protected void copyMissingProperties(Project antProject, Project antSubProject) {
+    Hashtable properties = antProject.getProperties();
+    Enumeration e = properties.keys();
+    while (e.hasMoreElements()) {
+      String key = e.nextElement().toString();
+      if (MagicNames.PROJECT_BASEDIR.equals(key) || MagicNames.ANT_FILE.equals(key) || SONAR_MODULES_PROPERTY.equals(key)) {
+        // those properties should not be copied (see org.apache.tools.ant.taskdefs.Ant#addAlmostAll(...) for more info on the 2 first ones)
+        continue;
+      }
+
+      String value = properties.get(key).toString();
+      // don't re-set user properties, avoid the warning message
+      if (antSubProject.getProperty(key) == null) {
+        // no user property
+        antSubProject.setNewProperty(key, value);
+      }
     }
   }
 
