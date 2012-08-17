@@ -191,7 +191,7 @@ public class Launcher {
 
   private void defineModules(Project antProject, ProjectDefinition definition) {
     String[] modules = StringUtils.split(definition.getProperties().getProperty("sonar.modules", ""), ',');
-    for (String module : modules) {
+    for (String module : StringUtils.stripAll(modules)) {
       File buildFile = findSubModuleBuildFile(antProject, module);
       Project antSubProject = prepareSubProject(antProject, buildFile);
       definition.addModule(defineProject(antSubProject));
