@@ -1,4 +1,4 @@
-Sonar Ant Task0
+Sonar Ant Task
 =========================
 
 This is the Sonar PHP plugin
