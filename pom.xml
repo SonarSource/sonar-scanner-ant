@@ -37,6 +37,11 @@
       <name>Simon Brandhof</name>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>bellingard</id>
+      <name>Fabrice Bellingard</name>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <scm>
