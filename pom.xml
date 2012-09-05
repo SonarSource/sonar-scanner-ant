@@ -40,9 +40,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/ant-task</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/ant-task</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
+    <connection>scm:git:git@github.com:SonarCommunity/ant-task.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/ant-task.git</developerConnection>
+    <url>https://github.com/SonarCommunity/ant-task</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
