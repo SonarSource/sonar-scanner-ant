@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant;
+package org.sonar.ant.deprecated;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -39,6 +39,8 @@ import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
+import org.sonar.ant.SonarTask;
+import org.sonar.ant.utils.Utils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.Batch;
@@ -54,6 +56,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * This class was used by code of the Ant Task < 1.5. 
+ * It is kept to offer backward compatibility for a while, but may be dropped at some point of time.
+ */
 public class Launcher {
 
   private static final String INFO = "INFO";
@@ -67,7 +73,7 @@ public class Launcher {
   }
 
   /**
-   * This method invoked from {@link SonarTask}.
+   * This method invoked from {@link OldSonarTaskExecutor}.
    */
   public void execute() {
     ProjectDefinition project = defineProject();

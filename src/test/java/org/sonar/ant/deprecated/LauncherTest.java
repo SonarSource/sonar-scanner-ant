@@ -18,7 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant;
+package org.sonar.ant.deprecated;
+
+import org.sonar.ant.SonarTask;
+
+import org.sonar.ant.deprecated.Launcher;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;

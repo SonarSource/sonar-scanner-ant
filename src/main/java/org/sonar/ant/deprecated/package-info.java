@@ -17,31 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.ant;
-
-import org.apache.tools.ant.Project;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class SonarTaskTest {
-
-  private SonarTask task;
-
-  @Before
-  public void init() {
-    task = new SonarTask();
-    task.setProject(new Project());
-  }
-
-  @Test
-  public void shouldReturnDefaultValues() {
-    assertThat(task.getServerUrl()).isEqualTo("http://localhost:9000");
-    assertThat(task.getWorkDir()).isEqualTo(new File(task.getProject().getBaseDir(), ".sonar"));
-  }
-
-}
+/**
+ * This package contains code of the Ant Task < 1.5. It is kept to offer backward compatibility for a while, but may be dropped at some point of time.
+ */
+package org.sonar.ant.deprecated;

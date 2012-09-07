@@ -18,17 +18,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant;
+package org.sonar.ant.utils;
 
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.Union;
+import org.sonar.ant.SonarTask;
+import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 
 public final class Utils {
 
@@ -103,6 +110,25 @@ public final class Utils {
     } catch (Exception e) { // NOSONAR if unable to determine level - just return default value
     }
     return 2;
+  }
+
+  /**
+   * Returns the version of the Ant Task
+   * 
+   * @return the version
+   */
+  public static String getTaskVersion() {
+    InputStream in = null;
+    try {
+      in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt");
+      Properties props = new Properties();
+      props.load(in);
+      return props.getProperty("version");
+    } catch (IOException e) {
+      throw new BuildException("Could not load the version information for Sonar Ant Task", e);
+    } finally {
+      BootstrapperIOUtils.closeQuietly(in);
+    }
   }
 
 }

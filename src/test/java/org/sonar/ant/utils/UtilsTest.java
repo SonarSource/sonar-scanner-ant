@@ -18,21 +18,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.io.File;
+package org.sonar.ant.utils;
 
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.resources.Union;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class UtilsTest {
 
@@ -65,6 +66,13 @@ public class UtilsTest {
     project.addBuildListener(logger);
 
     assertThat(Utils.getAntLoggerLever(project), is(2));
+  }
+
+  @Test
+  public void shouldGetVersion() {
+    String version = Utils.getTaskVersion();
+    assertThat(version, containsString("."));
+    assertThat(version, not(containsString("$")));
   }
 
 }
