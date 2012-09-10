@@ -45,9 +45,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/ant-task.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/ant-task.git</developerConnection>
-    <url>https://github.com/SonarCommunity/ant-task</url>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-ant-task.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-ant-task.git</developerConnection>
+    <url>https://github.com/SonarCommunity/sonar-ant-task</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
