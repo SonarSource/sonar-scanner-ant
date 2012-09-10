@@ -27,7 +27,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.Union;
 import org.sonar.ant.SonarTask;
-import org.sonar.batch.bootstrapper.BootstrapperIOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,7 +111,12 @@ public final class SonarAntTaskUtils {
     } catch (IOException e) {
       throw new BuildException("Could not load the version information for Sonar Ant Task", e);
     } finally {
-      BootstrapperIOUtils.closeQuietly(in);
+      try {
+        if (in != null) {
+          in.close();
+        }
+      } catch (IOException ioe) { // NOSONAR
+      }
     }
   }
 

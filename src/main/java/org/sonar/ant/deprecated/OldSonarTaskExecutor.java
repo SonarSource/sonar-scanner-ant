@@ -23,8 +23,8 @@ package org.sonar.ant.deprecated;
 import org.apache.tools.ant.BuildException;
 import org.sonar.ant.SonarTask;
 import org.sonar.ant.utils.SonarAntTaskUtils;
-import org.sonar.batch.bootstrapper.BootstrapClassLoader;
-import org.sonar.batch.bootstrapper.Bootstrapper;
+import org.sonar.runner.bootstrapper.BootstrapClassLoader;
+import org.sonar.runner.bootstrapper.Bootstrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -106,9 +106,6 @@ public class OldSonarTaskExecutor {
     try {
       Thread.currentThread().setContextClassLoader(sonarClassLoader);
       Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.ant.deprecated.Launcher");
-      // HACK - Required because of a limitation in the BootstrapClassLoader
-      sonarClassLoader.findClass("org.sonar.ant.deprecated.OldSonarTaskExecutor");
-      // HACK - End
       Constructor<?> constructor = launcherClass.getConstructor(SonarTask.class);
       Object launcher = constructor.newInstance(sonarTask);
       Method method = launcherClass.getMethod("execute");
