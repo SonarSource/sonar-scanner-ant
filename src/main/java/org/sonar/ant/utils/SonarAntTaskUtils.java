@@ -37,25 +37,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
-public final class Utils {
+public final class SonarAntTaskUtils {
 
-  private Utils() {
+  private SonarAntTaskUtils() {
     // only static methods
-  }
-
-  /**
-   * @since 1.2
-   */
-  public static String convertResourceCollectionToString(ResourceCollection c) {
-    String[] list = new Union(c).list();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < list.length; i++) {
-      if (i > 0) {
-        sb.append(',');
-      }
-      sb.append(list[i]);
-    }
-    return sb.toString();
   }
 
   /**
@@ -129,6 +114,30 @@ public final class Utils {
     } finally {
       BootstrapperIOUtils.closeQuietly(in);
     }
+  }
+
+  /**
+   * Looks up a "Path" property referenced by "refid" in the Ant project, and transforms it
+   * into a "String" property (comma-separated list).
+   */
+  public static void setPathProperty(Properties properties, Project antProject, String refid) {
+    if (antProject.getReference(refid) == null) {
+      return;
+    }
+    Object reference = antProject.getReference(refid);
+    properties.setProperty(refid, convertResourceCollectionToString((ResourceCollection) reference));
+  }
+
+  private static String convertResourceCollectionToString(ResourceCollection c) {
+    String[] list = new Union(c).list();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < list.length; i++) {
+      if (i > 0) {
+        sb.append(',');
+      }
+      sb.append(list[i]);
+    }
+    return sb.toString();
   }
 
 }

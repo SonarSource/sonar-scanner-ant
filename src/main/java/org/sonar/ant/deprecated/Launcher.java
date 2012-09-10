@@ -36,11 +36,10 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
 import org.sonar.ant.SonarTask;
-import org.sonar.ant.utils.Utils;
+import org.sonar.ant.utils.SonarAntTaskUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.Batch;
@@ -181,18 +180,7 @@ public class Launcher {
    * @since 1.2
    */
   private void setPathProperties(Properties properties, Project antProject) {
-    setPathProperty(properties, antProject, "sonar.libraries");
-  }
-
-  /**
-   * @since 1.2
-   */
-  private void setPathProperty(Properties properties, Project antProject, String refid) {
-    if (antProject.getReference(refid) == null) {
-      return;
-    }
-    Object reference = antProject.getReference(refid);
-    properties.setProperty(refid, Utils.convertResourceCollectionToString((ResourceCollection) reference));
+    SonarAntTaskUtils.setPathProperty(properties, antProject, "sonar.libraries");
   }
 
   private void defineModules(Project antProject, ProjectDefinition definition) {
@@ -278,7 +266,7 @@ public class Launcher {
       return DEBUG;
     }
 
-    int antLoggerLevel = Utils.getAntLoggerLever(task.getProject());
+    int antLoggerLevel = SonarAntTaskUtils.getAntLoggerLever(task.getProject());
     switch (antLoggerLevel) {
       case 3:
         return DEBUG;

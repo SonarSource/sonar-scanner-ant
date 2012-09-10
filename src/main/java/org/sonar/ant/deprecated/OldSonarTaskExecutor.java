@@ -22,7 +22,7 @@ package org.sonar.ant.deprecated;
 
 import org.apache.tools.ant.BuildException;
 import org.sonar.ant.SonarTask;
-import org.sonar.ant.utils.Utils;
+import org.sonar.ant.utils.SonarAntTaskUtils;
 import org.sonar.batch.bootstrapper.BootstrapClassLoader;
 import org.sonar.batch.bootstrapper.Bootstrapper;
 
@@ -62,7 +62,7 @@ public class OldSonarTaskExecutor {
    */
   public void execute() {
     checkMandatoryProperties();
-    bootstrapper = new Bootstrapper("AntTask/" + Utils.getTaskVersion(), sonarTask.getServerUrl(), sonarTask.getWorkDir());
+    bootstrapper = new Bootstrapper("AntTask/" + SonarAntTaskUtils.getTaskVersion(), sonarTask.getServerUrl(), sonarTask.getWorkDir());
     checkSonarVersion();
     delegateExecution(createClassLoader());
   }
@@ -91,7 +91,7 @@ public class OldSonarTaskExecutor {
     String serverVersion = bootstrapper.getServerVersion();
     sonarTask.log("Sonar version: " + serverVersion);
     if (isVersionPriorTo2Dot8(serverVersion)) {
-      throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + Utils.getTaskVersion()
+      throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + SonarAntTaskUtils.getTaskVersion()
         + ". Please upgrade Sonar to version 2.8 or more.");
     }
   }
@@ -126,7 +126,7 @@ public class OldSonarTaskExecutor {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-        new URL[] {Utils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        new URL[] {SonarAntTaskUtils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
         getClass().getClassLoader(),
         "org.apache.tools.ant", "org.sonar.ant");
   }
