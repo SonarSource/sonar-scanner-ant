@@ -86,7 +86,8 @@ public class SonarTask extends Task {
     } else {
       // Standard mode
       Runner runner = Runner.create(properties, baseDir);
-      runner.setEnvironmentInformation("Ant", SonarAntTaskUtils.getTaskVersion());
+      // TODO : with the following line, the Sonar Runner crashed with a DefNotFoundError on AntProject
+      // runner.setEnvironmentInformation("Ant", SonarAntTaskUtils.getTaskVersion());
       runner.execute();
     }
   }

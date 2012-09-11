@@ -20,11 +20,12 @@
 
 package org.sonar.ant.deprecated;
 
+import org.sonar.runner.internal.bootstrapper.BootstrapClassLoader;
+import org.sonar.runner.internal.bootstrapper.Bootstrapper;
+
 import org.apache.tools.ant.BuildException;
 import org.sonar.ant.SonarTask;
 import org.sonar.ant.utils.SonarAntTaskUtils;
-import org.sonar.runner.bootstrapper.BootstrapClassLoader;
-import org.sonar.runner.bootstrapper.Bootstrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
