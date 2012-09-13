@@ -18,10 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant.deprecated;
-
-import org.sonar.runner.internal.bootstrapper.BootstrapClassLoader;
-import org.sonar.runner.internal.bootstrapper.Bootstrapper;
+package org.sonar.runner;
 
 import org.apache.tools.ant.BuildException;
 import org.sonar.ant.SonarTask;
@@ -35,13 +32,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * This class is a big part of the code of the Ant Task < 1.5. 
+ * This class is a big part of the code of the Ant Task < 1.5.
  * It is kept to offer backward compatibility for a while, but may be dropped at some point of time.
- * 
+ * <p/>
  * It is deprecated since version 1.5, for which the use of the embedded Sonar Runner is preferred.
  */
 @Deprecated
-public class OldSonarTaskExecutor {
+public class DeprecatedAntTaskExecutor {
 
   /**
    * Array of prefixes of versions of Sonar without support of this Deprecated Ant Task.
@@ -53,7 +50,7 @@ public class OldSonarTaskExecutor {
   private SonarTask sonarTask;
   private Bootstrapper bootstrapper;
 
-  public OldSonarTaskExecutor(SonarTask sonarTask) {
+  public DeprecatedAntTaskExecutor(SonarTask sonarTask) {
     this.sonarTask = sonarTask;
   }
 
@@ -98,15 +95,15 @@ public class OldSonarTaskExecutor {
   }
 
   /**
-   * Loads {@link Launcher} from specified {@link BootstrapClassLoader} and passes control to it.
-   * 
-   * @see Launcher#execute()
+   * Loads {@link DeprecatedAntLauncher} from specified {@link BootstrapClassLoader} and passes control to it.
+   *
+   * @see DeprecatedAntLauncher#execute()
    */
   private void delegateExecution(BootstrapClassLoader sonarClassLoader) {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(sonarClassLoader);
-      Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.ant.deprecated.Launcher");
+      Class<?> launcherClass = sonarClassLoader.findClass("org.sonar.runner.DeprecatedAntLauncher");
       Constructor<?> constructor = launcherClass.getConstructor(SonarTask.class);
       Object launcher = constructor.newInstance(sonarTask);
       Method method = launcherClass.getMethod("execute");
@@ -124,9 +121,9 @@ public class OldSonarTaskExecutor {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-        new URL[] {SonarAntTaskUtils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
-        getClass().getClassLoader(),
-        "org.apache.tools.ant", "org.sonar.ant");
+      new URL[]{SonarAntTaskUtils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+      getClass().getClassLoader(),
+      "org.apache.tools.ant", "org.sonar.ant");
   }
 
   static boolean isVersionPriorTo2Dot8(String version) {

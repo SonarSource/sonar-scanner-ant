@@ -26,8 +26,8 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Path;
-import org.sonar.ant.deprecated.OldSonarTaskExecutor;
 import org.sonar.ant.utils.SonarAntTaskUtils;
+import org.sonar.runner.DeprecatedAntTaskExecutor;
 import org.sonar.runner.Runner;
 
 import java.io.File;
@@ -45,7 +45,7 @@ public class SonarTask extends Task {
   private File workDir;
   private File baseDir;
 
-  // BEGIN of deprecated fields/properties list used only by the OldSonarTaskExecutor and the associated compatibility mode
+  // BEGIN of deprecated fields/properties list used only by the DeprecatedAntTaskExecutor and the associated compatibility mode
   private static final String ENV_PROPERTY_COMPATIBILITY_MODE = "SONAR_ANT_TASK_COMPATIBILITY_MODE";
   private static final String PROPERTY_COMPATIBILITY_MODE = "sonar.anttask.compatibilitymode";
   private static final String COMPATIBILITY_MODE_ON = "on";
@@ -80,9 +80,9 @@ public class SonarTask extends Task {
     if (isCompatibilityModeActivated(properties)) {
       // Compatibility mode is activated to prevent issues with the standard way to execute analyses (= with the Sonar Runner)
       log("/!\\ Sonar Ant Task running in compatibility mode: please refer to the documentation to udpate your scripts to comply with the standards.",
-          Project.MSG_WARN);
-      OldSonarTaskExecutor oldSonarTaskExecutor = new OldSonarTaskExecutor(this);
-      oldSonarTaskExecutor.execute();
+        Project.MSG_WARN);
+      DeprecatedAntTaskExecutor deprecatedAntTaskExecutor = new DeprecatedAntTaskExecutor(this);
+      deprecatedAntTaskExecutor.execute();
     } else {
       // Standard mode
       Runner runner = Runner.create(properties, baseDir);
@@ -98,7 +98,7 @@ public class SonarTask extends Task {
    * - at least one of the old deprecated properties has been set
    * - "sonar.anttask.compatibilitymode=on" has been passed to the JVM
    * - SONAR_ANT_TASK_COMPATIBILITY_MODE env variable exists and is set to "on"
-   * - "sonar.modules" exists and references XML files 
+   * - "sonar.modules" exists and references XML files
    */
   @VisibleForTesting
   protected boolean isCompatibilityModeActivated(Properties properties) {

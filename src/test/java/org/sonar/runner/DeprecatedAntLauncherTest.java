@@ -17,12 +17,9 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.ant.deprecated;
+package org.sonar.runner;
 
 import org.sonar.ant.SonarTask;
-
-import org.sonar.ant.deprecated.Launcher;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -43,14 +40,14 @@ import java.util.Properties;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class LauncherTest {
+public class DeprecatedAntLauncherTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private Project antProject;
   private SonarTask task;
-  private Launcher launcher;
+  private DeprecatedAntLauncher deprecatedAntLauncher;
 
   @Before
   public void setUp() {
@@ -58,7 +55,7 @@ public class LauncherTest {
     antProject.setBaseDir(new File("."));
     task = new SonarTask();
     task.setProject(antProject);
-    launcher = new Launcher(task);
+    deprecatedAntLauncher = new DeprecatedAntLauncher(task);
   }
 
   @Test
@@ -68,7 +65,7 @@ public class LauncherTest {
     task.setKey("org.example:example");
     task.setVersion("0.1-SNAPSHOT");
 
-    ProjectDefinition sonarProject = launcher.defineProject();
+    ProjectDefinition sonarProject = deprecatedAntLauncher.defineProject();
 
     assertThat(sonarProject.getBaseDir(), is(antProject.getBaseDir()));
     assertThat(sonarProject.getWorkDir(), is(task.getWorkDir()));
@@ -91,7 +88,7 @@ public class LauncherTest {
     setProperty(task, CoreProperties.PROJECT_DESCRIPTION_PROPERTY, "My description");
     setProperty(task, CoreProperties.PROJECT_BRANCH_PROPERTY, "Not used");
 
-    ProjectDefinition sonarProject = launcher.defineProject();
+    ProjectDefinition sonarProject = deprecatedAntLauncher.defineProject();
 
     Properties sonarProperties = sonarProject.getProperties();
     assertThat(sonarProperties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY), is("org.example:example"));
@@ -104,21 +101,21 @@ public class LauncherTest {
 
   @Test
   public void defaultLogLevelShouldBeInfo() {
-    assertThat(launcher.getLoggerLevel(new PropertiesConfiguration()), is("INFO"));
+    assertThat(deprecatedAntLauncher.getLoggerLevel(new PropertiesConfiguration()), is("INFO"));
   }
 
   @Test
   public void shouldEnableVerboseMode() {
     PropertiesConfiguration config = new PropertiesConfiguration();
     config.setProperty("sonar.verbose", "true");
-    assertThat(launcher.getLoggerLevel(config), is("DEBUG"));
+    assertThat(deprecatedAntLauncher.getLoggerLevel(config), is("DEBUG"));
   }
 
   @Test
   public void shouldDisableVerboseMode() {
     PropertiesConfiguration config = new PropertiesConfiguration();
     config.setProperty("sonar.verbose", "false");
-    assertThat(launcher.getLoggerLevel(config), is("INFO"));
+    assertThat(deprecatedAntLauncher.getLoggerLevel(config), is("INFO"));
   }
 
   private void setProperty(SonarTask task, String key, String value) {
@@ -132,26 +129,26 @@ public class LauncherTest {
   public void testGetSqlLevel() throws Exception {
     Configuration conf = new BaseConfiguration();
 
-    assertThat(Launcher.getSqlLevel(conf), is("WARN"));
+    assertThat(DeprecatedAntLauncher.getSqlLevel(conf), is("WARN"));
 
     conf.setProperty("sonar.showSql", "true");
-    assertThat(Launcher.getSqlLevel(conf), is("DEBUG"));
+    assertThat(DeprecatedAntLauncher.getSqlLevel(conf), is("DEBUG"));
 
     conf.setProperty("sonar.showSql", "false");
-    assertThat(Launcher.getSqlLevel(conf), is("WARN"));
+    assertThat(DeprecatedAntLauncher.getSqlLevel(conf), is("WARN"));
   }
 
   @Test
   public void testGetSqlResultsLevel() throws Exception {
     Configuration conf = new BaseConfiguration();
 
-    assertThat(Launcher.getSqlResultsLevel(conf), is("WARN"));
+    assertThat(DeprecatedAntLauncher.getSqlResultsLevel(conf), is("WARN"));
 
     conf.setProperty("sonar.showSqlResults", "true");
-    assertThat(Launcher.getSqlResultsLevel(conf), is("DEBUG"));
+    assertThat(DeprecatedAntLauncher.getSqlResultsLevel(conf), is("DEBUG"));
 
     conf.setProperty("sonar.showSqlResults", "false");
-    assertThat(Launcher.getSqlResultsLevel(conf), is("WARN"));
+    assertThat(DeprecatedAntLauncher.getSqlResultsLevel(conf), is("WARN"));
   }
 
   @Test
@@ -161,7 +158,7 @@ public class LauncherTest {
     thrown.expectMessage("- property 'sonar.sources'");
     thrown.expectMessage("- property 'sonar.projectKey'");
 
-    Launcher.checkAntProjectForMandatoryProperties(new Project());
+    DeprecatedAntLauncher.checkAntProjectForMandatoryProperties(new Project());
   }
 
   @Test
@@ -170,23 +167,23 @@ public class LauncherTest {
     antProject.setProperty("sonar.sources", "src");
     antProject.setProperty("sonar.projectKey", "foo");
 
-    Launcher.checkAntProjectForMandatoryProperties(antProject);
+    DeprecatedAntLauncher.checkAntProjectForMandatoryProperties(antProject);
   }
 
   @Test
   public void shouldFindSubModuleBuildFileWithModuleAbsolutePath() {
-    File buildFile = TestUtils.getResource("org/sonar/ant/LauncherTest/build.xml");
+    File buildFile = TestUtils.getResource("org/sonar/runner/DeprecatedAntLauncherTest/build.xml");
 
-    File foundFile = Launcher.findSubModuleBuildFile(new Project(), buildFile.getAbsolutePath());
+    File foundFile = DeprecatedAntLauncher.findSubModuleBuildFile(new Project(), buildFile.getAbsolutePath());
     assertThat(foundFile, is(buildFile));
   }
 
   @Test
   public void shouldFindSubModuleBuildFileWithModuleRelativePath() {
     Project antProject = new Project();
-    antProject.setBaseDir(TestUtils.getResource("org/sonar/ant"));
+    antProject.setBaseDir(TestUtils.getResource("org/sonar/runner"));
 
-    File foundFile = Launcher.findSubModuleBuildFile(antProject, "LauncherTest/build.xml");
-    assertThat(foundFile, is(TestUtils.getResource("org/sonar/ant/LauncherTest/build.xml")));
+    File foundFile = DeprecatedAntLauncher.findSubModuleBuildFile(antProject, "DeprecatedAntLauncherTest/build.xml");
+    assertThat(foundFile, is(TestUtils.getResource("org/sonar/runner/DeprecatedAntLauncherTest/build.xml")));
   }
 }

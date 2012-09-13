@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant.deprecated;
+package org.sonar.runner;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -59,7 +59,7 @@ import java.util.Properties;
  * This class was used by code of the Ant Task < 1.5. 
  * It is kept to offer backward compatibility for a while, but may be dropped at some point of time.
  */
-public class Launcher {
+public class DeprecatedAntLauncher {
 
   private static final String INFO = "INFO";
   private static final String WARN = "WARN";
@@ -67,12 +67,12 @@ public class Launcher {
   private static final String TRACE = "TRACE";
   private SonarTask task;
 
-  public Launcher(SonarTask task) {
+  public DeprecatedAntLauncher(SonarTask task) {
     this.task = task;
   }
 
   /**
-   * This method invoked from {@link OldSonarTaskExecutor}.
+   * This method invoked from {@link org.sonar.runner.DeprecatedAntTaskExecutor}.
    */
   public void execute() {
     ProjectDefinition project = defineProject();

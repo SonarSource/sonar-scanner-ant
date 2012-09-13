@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant.deprecated;
+package org.sonar.runner;
 
 import org.apache.tools.ant.Project;
 import org.junit.Rule;
@@ -28,24 +28,24 @@ import org.sonar.ant.SonarTask;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class OldSonarTaskExecutorTest {
+public class DeprecatedAntTaskExecutorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldCheckVersion() {
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("1.0")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.0")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.1")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.2")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.3")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.4")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.4.1")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.5")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.6")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.7")).isEqualTo(true);
-    assertThat(OldSonarTaskExecutor.isVersionPriorTo2Dot8("2.8")).isEqualTo(false);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("1.0")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.0")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.1")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.2")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.3")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.4")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.4.1")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.5")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.6")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.7")).isEqualTo(true);
+    assertThat(DeprecatedAntTaskExecutor.isVersionPriorTo2Dot8("2.8")).isEqualTo(false);
   }
 
   @Test
@@ -58,7 +58,7 @@ public class OldSonarTaskExecutorTest {
 
     SonarTask task = new SonarTask();
     task.setProject(new Project());
-    OldSonarTaskExecutor executor = new OldSonarTaskExecutor(task);
+    DeprecatedAntTaskExecutor executor = new DeprecatedAntTaskExecutor(task);
 
     executor.checkMandatoryProperties();
   }
@@ -71,7 +71,7 @@ public class OldSonarTaskExecutorTest {
     task.setVersion("2");
     System.setProperty("sonar.sources", "src");
 
-    OldSonarTaskExecutor executor = new OldSonarTaskExecutor(task);
+    DeprecatedAntTaskExecutor executor = new DeprecatedAntTaskExecutor(task);
 
     executor.checkMandatoryProperties();
 
@@ -87,7 +87,7 @@ public class OldSonarTaskExecutorTest {
     task.setKey("foo");
     task.setVersion("2");
 
-    OldSonarTaskExecutor executor = new OldSonarTaskExecutor(task);
+    DeprecatedAntTaskExecutor executor = new DeprecatedAntTaskExecutor(task);
 
     executor.checkMandatoryProperties();
   }
@@ -100,7 +100,7 @@ public class OldSonarTaskExecutorTest {
     task.setKey("foo");
     task.setVersion("2");
 
-    OldSonarTaskExecutor executor = new OldSonarTaskExecutor(task);
+    DeprecatedAntTaskExecutor executor = new DeprecatedAntTaskExecutor(task);
 
     executor.checkMandatoryProperties();
   }
@@ -113,7 +113,7 @@ public class OldSonarTaskExecutorTest {
     task.setKey("foo");
     task.setVersion("2");
 
-    OldSonarTaskExecutor executor = new OldSonarTaskExecutor(task);
+    DeprecatedAntTaskExecutor executor = new DeprecatedAntTaskExecutor(task);
 
     executor.checkMandatoryProperties();
   }
