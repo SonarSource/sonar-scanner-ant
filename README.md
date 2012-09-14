@@ -1,7 +1,7 @@
 Sonar Ant Task
 =========================
 
-This is the Sonar PHP plugin
+This is the Sonar Ant Task
 
 Project homepage:
 http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Ant+Task
