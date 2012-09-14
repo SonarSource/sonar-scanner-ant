@@ -39,7 +39,7 @@ import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.slf4j.LoggerFactory;
 import org.sonar.ant.SonarTask;
-import org.sonar.ant.utils.SonarAntTaskUtils;
+import org.sonar.ant.SonarTaskUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.Batch;
@@ -180,7 +180,7 @@ public class DeprecatedAntLauncher {
    * @since 1.2
    */
   private void setPathProperties(Properties properties, Project antProject) {
-    SonarAntTaskUtils.setPathProperty(properties, antProject, "sonar.libraries");
+    SonarTaskUtils.setPathProperty(properties, antProject, "sonar.libraries");
   }
 
   private void defineModules(Project antProject, ProjectDefinition definition) {
@@ -239,7 +239,7 @@ public class DeprecatedAntLauncher {
   }
 
   /**
-   * TODO This method should use the component org.sonar.batch.bootstrapper.LoggingConfiguration
+   * => This method should use the component org.sonar.batch.bootstrapper.LoggingConfiguration
    * created in sonar 2.14. It requires that the minimum supported version of sonar is 2.14, but
    * it's currently 2.8.
    */
@@ -266,7 +266,7 @@ public class DeprecatedAntLauncher {
       return DEBUG;
     }
 
-    int antLoggerLevel = SonarAntTaskUtils.getAntLoggerLever(task.getProject());
+    int antLoggerLevel = SonarTaskUtils.getAntLoggerLever(task.getProject());
     switch (antLoggerLevel) {
       case 3:
         return DEBUG;

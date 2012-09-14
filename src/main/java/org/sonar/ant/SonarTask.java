@@ -26,7 +26,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Path;
-import org.sonar.ant.utils.SonarAntTaskUtils;
 import org.sonar.runner.DeprecatedAntTaskExecutor;
 import org.sonar.runner.Runner;
 
@@ -66,8 +65,8 @@ public class SonarTask extends Task {
   @Override
   public void execute() {
     log(Main.getAntVersion());
-    log("Sonar Ant Task version: " + SonarAntTaskUtils.getTaskVersion());
-    log("Loaded from: " + SonarAntTaskUtils.getJarPath());
+    log("Sonar Ant Task version: " + SonarTaskUtils.getTaskVersion());
+    log("Loaded from: " + SonarTaskUtils.getJarPath());
     log("Sonar work directory: " + getWorkDir().getAbsolutePath());
     log("Sonar server: " + getServerUrl());
 
@@ -79,15 +78,17 @@ public class SonarTask extends Task {
   private void launchAnalysis(Properties properties) {
     if (isCompatibilityModeActivated(properties)) {
       // Compatibility mode is activated to prevent issues with the standard way to execute analyses (= with the Sonar Runner)
+      log("*****************************************************************************************************************************************");
       log("/!\\ Sonar Ant Task running in compatibility mode: please refer to the documentation to udpate your scripts to comply with the standards.",
-        Project.MSG_WARN);
+          Project.MSG_WARN);
+      log("*****************************************************************************************************************************************");
       DeprecatedAntTaskExecutor deprecatedAntTaskExecutor = new DeprecatedAntTaskExecutor(this);
       deprecatedAntTaskExecutor.execute();
     } else {
       // Standard mode
       Runner runner = Runner.create(properties, baseDir);
       runner.setUnmaskedPackages("org.apache.tools.ant", "org.sonar.ant");
-      runner.setEnvironmentInformation("Ant", SonarAntTaskUtils.getTaskVersion());
+      runner.setEnvironmentInformation("Ant", SonarTaskUtils.getTaskVersion());
       runner.addContainerExtension(getProject());
       runner.execute();
     }

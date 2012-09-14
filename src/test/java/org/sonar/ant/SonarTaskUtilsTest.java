@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant.utils;
+package org.sonar.ant;
 
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -33,12 +33,11 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UtilsTest {
+public class SonarTaskUtilsTest {
 
   @Test
   public void shouldSetPathProperty() {
@@ -56,7 +55,7 @@ public class UtilsTest {
     when(project.getReference("foo")).thenReturn(union);
 
     Properties props = new Properties();
-    SonarAntTaskUtils.setPathProperty(props, project, "foo");
+    SonarTaskUtils.setPathProperty(props, project, "foo");
 
     assertThat(props.getProperty("foo")).isEqualTo(file1.getAbsolutePath() + "," + file2.getAbsolutePath());
   }
@@ -66,14 +65,21 @@ public class UtilsTest {
     Project project = mock(Project.class);
 
     Properties props = new Properties();
-    SonarAntTaskUtils.setPathProperty(props, project, "foo");
+    SonarTaskUtils.setPathProperty(props, project, "foo");
 
     assertThat(props.getProperty("foo")).isNull();
   }
 
   @Test
   public void shouldGetJarPath() {
-    assertThat(SonarAntTaskUtils.getJarPath(), not(nullValue()));
+    assertThat(SonarTaskUtils.getJarPath()).isNotNull();
+  }
+
+  @Test
+  public void shouldExtractURI() {
+    assertThat(SonarTaskUtils.extractURI(null, "jar:file:/temp/foo.jar!bar")).isEqualTo("file:/temp/foo.jar");
+    assertThat(SonarTaskUtils.extractURI("/mypackage/myClass.class", "file:/temp/foo.jar/mypackage/myClass.class")).isEqualTo("file:/temp/foo.jar");
+    assertThat(SonarTaskUtils.extractURI(null, "/temp/foo.jar")).isNull();
   }
 
   @Test
@@ -83,12 +89,12 @@ public class UtilsTest {
     logger.setMessageOutputLevel(2);
     project.addBuildListener(logger);
 
-    assertThat(SonarAntTaskUtils.getAntLoggerLever(project), is(2));
+    assertThat(SonarTaskUtils.getAntLoggerLever(project), is(2));
   }
 
   @Test
   public void shouldGetVersion() {
-    String version = SonarAntTaskUtils.getTaskVersion();
+    String version = SonarTaskUtils.getTaskVersion();
     assertThat(version, containsString("."));
     assertThat(version, not(containsString("$")));
   }

@@ -22,7 +22,7 @@ package org.sonar.runner;
 
 import org.apache.tools.ant.BuildException;
 import org.sonar.ant.SonarTask;
-import org.sonar.ant.utils.SonarAntTaskUtils;
+import org.sonar.ant.SonarTaskUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -35,7 +35,7 @@ import java.util.Collection;
  * This class is a big part of the code of the Ant Task < 1.5.
  * It is kept to offer backward compatibility for a while, but may be dropped at some point of time.
  * <p/>
- * It is deprecated since version 1.5, for which the use of the embedded Sonar Runner is preferred.
+ * @deprecated since version 1.5, for which the use of the embedded Sonar Runner is preferred.
  */
 @Deprecated
 public class DeprecatedAntTaskExecutor {
@@ -60,7 +60,7 @@ public class DeprecatedAntTaskExecutor {
    */
   public void execute() {
     checkMandatoryProperties();
-    bootstrapper = new Bootstrapper("AntTask/" + SonarAntTaskUtils.getTaskVersion(), sonarTask.getServerUrl(), sonarTask.getWorkDir());
+    bootstrapper = new Bootstrapper("AntTask/" + SonarTaskUtils.getTaskVersion(), sonarTask.getServerUrl(), sonarTask.getWorkDir());
     checkSonarVersion();
     delegateExecution(createClassLoader());
   }
@@ -89,7 +89,7 @@ public class DeprecatedAntTaskExecutor {
     String serverVersion = bootstrapper.getServerVersion();
     sonarTask.log("Sonar version: " + serverVersion);
     if (isVersionPriorTo2Dot8(serverVersion)) {
-      throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + SonarAntTaskUtils.getTaskVersion()
+      throw new BuildException("Sonar " + serverVersion + " does not support Sonar Ant Task " + SonarTaskUtils.getTaskVersion()
         + ". Please upgrade Sonar to version 2.8 or more.");
     }
   }
@@ -121,9 +121,9 @@ public class DeprecatedAntTaskExecutor {
 
   private BootstrapClassLoader createClassLoader() {
     return bootstrapper.createClassLoader(
-      new URL[]{SonarAntTaskUtils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
-      getClass().getClassLoader(),
-      "org.apache.tools.ant", "org.sonar.ant");
+        new URL[] {SonarTaskUtils.getJarPath()}, // Add JAR with Sonar Ant task - it's a Jar which contains this class
+        getClass().getClassLoader(),
+        "org.apache.tools.ant", "org.sonar.ant");
   }
 
   static boolean isVersionPriorTo2Dot8(String version) {

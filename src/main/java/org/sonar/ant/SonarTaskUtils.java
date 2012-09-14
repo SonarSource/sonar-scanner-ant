@@ -18,15 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.ant.utils;
+package org.sonar.ant;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.resources.Union;
-import org.sonar.ant.SonarTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +36,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
-public final class SonarAntTaskUtils {
+public final class SonarTaskUtils {
 
-  private SonarAntTaskUtils() {
+  private SonarTaskUtils() {
     // only static methods
   }
 
@@ -52,15 +52,7 @@ public final class SonarAntTaskUtils {
     String pathToClass = "/" + SonarTask.class.getName().replace('.', '/') + ".class";
     URL url = SonarTask.class.getResource(pathToClass);
     if (url != null) {
-      String path = url.toString();
-      String uri = null;
-      if (path.startsWith("jar:file:")) {
-        int bang = path.indexOf('!');
-        uri = path.substring(4, bang);
-      } else if (path.startsWith("file:")) {
-        int tail = path.indexOf(pathToClass);
-        uri = path.substring(0, tail);
-      }
+      String uri = extractURI(pathToClass, url.toString());
       if (uri != null) {
         try {
           return new URL(uri);
@@ -69,6 +61,19 @@ public final class SonarAntTaskUtils {
       }
     }
     return null;
+  }
+
+  @VisibleForTesting
+  protected static String extractURI(String pathToClass, String path) {
+    String uri = null;
+    if (path.startsWith("jar:file:")) {
+      int bang = path.indexOf('!');
+      uri = path.substring(4, bang);
+    } else if (path.startsWith("file:")) {
+      int tail = path.indexOf(pathToClass);
+      uri = path.substring(0, tail);
+    }
+    return uri;
   }
 
   /**
