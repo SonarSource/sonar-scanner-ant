@@ -25,8 +25,6 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.ResourceCollection;
-import org.apache.tools.ant.types.resources.Union;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +43,7 @@ public final class SonarTaskUtils {
   /**
    * For unknown reasons <code>getClass().getProtectionDomain().getCodeSource().getLocation()</code> doesn't work under Ant 1.7.0.
    * So this is a workaround.
-   * 
+   *
    * @return Jar which contains this class
    */
   public static URL getJarPath() {
@@ -96,14 +94,14 @@ public final class SonarTaskUtils {
           return (Integer) field.get(logger);
         }
       }
-    } catch (Exception e) { // NOSONAR if unable to determine level - just return default value
+    } catch (Exception e) { // if unable to determine level - just return default value
     }
     return 2;
   }
 
   /**
    * Returns the version of the Ant Task
-   * 
+   *
    * @return the version
    */
   public static String getTaskVersion() {
@@ -120,33 +118,9 @@ public final class SonarTaskUtils {
         if (in != null) {
           in.close();
         }
-      } catch (IOException ioe) { // NOSONAR
+      } catch (IOException ioe) {
       }
     }
-  }
-
-  /**
-   * Looks up a "Path" property referenced by "refid" in the Ant project, and transforms it
-   * into a "String" property (comma-separated list).
-   */
-  public static void setPathProperty(Properties properties, Project antProject, String refid) {
-    if (antProject.getReference(refid) == null) {
-      return;
-    }
-    Object reference = antProject.getReference(refid);
-    properties.setProperty(refid, convertResourceCollectionToString((ResourceCollection) reference));
-  }
-
-  private static String convertResourceCollectionToString(ResourceCollection c) {
-    String[] list = new Union(c).list();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < list.length; i++) {
-      if (i > 0) {
-        sb.append(',');
-      }
-      sb.append(list[i]);
-    }
-    return sb.toString();
   }
 
 }

@@ -42,6 +42,11 @@
       <name>Fabrice Bellingard</name>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <scm>
@@ -55,42 +60,27 @@
   </issueManagement>
 
   <properties>
-    <sonar.version>2.11</sonar.version>
-    <sonar-runner.version>1.5-SNAPSHOT</sonar-runner.version>
+    <sonar.version>3.0</sonar.version>
     <ant.version>1.7.0</ant.version>
   </properties>
 
   <dependencies>
     <!-- Would be embedded in final JAR -->
     <dependency>
-      <groupId>org.codehaus.sonar-plugins</groupId>
-      <artifactId>sonar-runner</artifactId>
-      <version>2.0</version>
+      <groupId>org.codehaus.sonar.runner</groupId>
+      <artifactId>sonar-runner-api</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>10.0.1</version>
     </dependency>
     <!-- Would be provided by environment -->
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
       <version>${ant.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Would be available after bootstrapping -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>0.9.15</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch-bootstrapper</artifactId>
-      <version>${sonar.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch</artifactId>
-      <version>${sonar.version}</version>
       <scope>provided</scope>
     </dependency>
     <!-- Unit tests -->
@@ -131,5 +121,5 @@
       </plugin>
     </plugins>
   </build>
-  
+
 </project>
