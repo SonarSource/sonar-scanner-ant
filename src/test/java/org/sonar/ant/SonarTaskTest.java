@@ -20,17 +20,92 @@
 
 package org.sonar.ant;
 
+import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
-import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Vector;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SonarTaskTest {
 
-  private SonarTask task;
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
 
-  @Before
-  public void init() {
+  private SonarTask task;
+  private Project project;
+
+  @Test
+  public void testAntProjectPropertiesPassedToSonarRunner() throws IOException {
+    project = mock(Project.class);
+
+    Properties props = new Properties();
+    props.put("sonar.foo", "bar");
+    when(project.getProperties()).thenReturn(props);
+
+    execute();
+
+    ArgumentCaptor<Properties> argument = ArgumentCaptor.forClass(Properties.class);
+    verify(task).launchAnalysis(argument.capture());
+    assertThat(argument.getValue().getProperty("sonar.foo")).isEqualTo("bar");
+
+  }
+
+  private void execute() throws IOException {
     task = new SonarTask();
-    task.setProject(new Project());
+
+    when(project.getBaseDir()).thenReturn(folder.newFile("baseDir"));
+    task.setProject(project);
+    task = spy(task);
+    doNothing().when(task).launchAnalysis(any(Properties.class));
+
+    task.execute();
+  }
+
+  // SONARPLUGINS-2840
+  @Test
+  public void testSonarVerbose() throws IOException {
+    testSonarVerboseForAntLevel(1, null);
+    testSonarVerboseForAntLevel(2, null);
+    testSonarVerboseForAntLevel(3, "true");
+    testSonarVerboseForAntLevel(4, "true");
+
+  }
+
+  private void testSonarVerboseForAntLevel(int antLevel, String sonarVerboseValue) throws IOException {
+    project = mock(Project.class);
+
+    Properties props = new Properties();
+    when(project.getProperties()).thenReturn(props);
+
+    when(project.getBuildListeners()).thenReturn(new Vector(Arrays.asList(new MyCustomAntLogger(antLevel))));
+
+    execute();
+
+    ArgumentCaptor<Properties> argument = ArgumentCaptor.forClass(Properties.class);
+    verify(task).launchAnalysis(argument.capture());
+    assertThat(argument.getValue().getProperty("sonar.verbose")).isEqualTo(sonarVerboseValue);
+  }
+
+  private static class MyCustomAntLogger extends DefaultLogger {
+
+    public MyCustomAntLogger(int level) {
+      this.msgOutputLevel = level;
+    }
+
   }
 
 }

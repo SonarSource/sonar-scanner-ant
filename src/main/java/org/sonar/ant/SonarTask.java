@@ -20,6 +20,7 @@
 
 package org.sonar.ant;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.sonar.runner.api.EmbeddedRunner;
@@ -28,8 +29,8 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
-  String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
-  String VERBOSE_PROPERTY = "sonar.verbose";
+  private static String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
+  private static String VERBOSE_PROPERTY = "sonar.verbose";
 
   @SuppressWarnings("unchecked")
   @Override
@@ -47,7 +48,8 @@ public class SonarTask extends Task {
     launchAnalysis(allProps);
   }
 
-  private void launchAnalysis(Properties properties) {
+  @VisibleForTesting
+  void launchAnalysis(Properties properties) {
     EmbeddedRunner.create()
         .addProperties(properties)
         .setUnmaskedPackages("org.apache.tools.ant", "org.sonar.ant")

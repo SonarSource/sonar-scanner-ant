@@ -21,6 +21,7 @@
 package org.sonar.ant;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.Closeables;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.DefaultLogger;
@@ -54,7 +55,7 @@ public final class SonarTaskUtils {
       if (uri != null) {
         try {
           return new URL(uri);
-        } catch (MalformedURLException e) { // NOSONAR
+        } catch (MalformedURLException e) {
         }
       }
     }
@@ -94,7 +95,8 @@ public final class SonarTaskUtils {
           return (Integer) field.get(logger);
         }
       }
-    } catch (Exception e) { // if unable to determine level - just return default value
+    } catch (Exception e) {
+      // if unable to determine level - just return default value
     }
     return 2;
   }
@@ -114,12 +116,7 @@ public final class SonarTaskUtils {
     } catch (IOException e) {
       throw new BuildException("Could not load the version information for Sonar Ant Task", e);
     } finally {
-      try {
-        if (in != null) {
-          in.close();
-        }
-      } catch (IOException ioe) {
-      }
+      Closeables.closeQuietly(in);
     }
   }
 
