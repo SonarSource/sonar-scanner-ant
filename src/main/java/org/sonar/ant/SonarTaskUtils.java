@@ -56,6 +56,7 @@ public final class SonarTaskUtils {
         try {
           return new URL(uri);
         } catch (MalformedURLException e) {
+          return null;
         }
       }
     }
@@ -95,10 +96,11 @@ public final class SonarTaskUtils {
           return (Integer) field.get(logger);
         }
       }
+      return 2;
     } catch (Exception e) {
       // if unable to determine level - just return default value
+      return 2;
     }
-    return 2;
   }
 
   /**

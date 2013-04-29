@@ -29,8 +29,8 @@ import java.util.Properties;
 
 public class SonarTask extends Task {
 
-  private static String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
-  private static String VERBOSE_PROPERTY = "sonar.verbose";
+  private static final String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
+  private static final String VERBOSE_PROPERTY = "sonar.verbose";
 
   @SuppressWarnings("unchecked")
   @Override
