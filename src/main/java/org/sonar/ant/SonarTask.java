@@ -36,7 +36,7 @@ public class SonarTask extends Task {
   @Override
   public void execute() {
     log(Main.getAntVersion());
-    log("Sonar Ant Task version: " + SonarTaskUtils.getTaskVersion());
+    log("SonarQube Ant Task version: " + SonarTaskUtils.getTaskVersion());
     log("Loaded from: " + SonarTaskUtils.getJarPath());
 
     Properties allProps = new Properties();
@@ -51,11 +51,12 @@ public class SonarTask extends Task {
   @VisibleForTesting
   void launchAnalysis(Properties properties) {
     EmbeddedRunner.create()
-        .addProperties(properties)
-        .setUnmaskedPackages("org.apache.tools.ant", "org.sonar.ant")
-        .setApp("Ant", SonarTaskUtils.getTaskVersion())
-        .addExtensions(getProject())
-        .execute();
+      .addProperties(properties)
+      .unmask("org.apache.tools.ant")
+      .unmask("org.sonar.ant")
+      .setApp("Ant", SonarTaskUtils.getTaskVersion())
+      .addExtensions(getProject())
+      .execute();
   }
 
 }

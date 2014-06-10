@@ -116,7 +116,7 @@ public final class SonarTaskUtils {
       props.load(in);
       return props.getProperty("version");
     } catch (IOException e) {
-      throw new BuildException("Could not load the version information for Sonar Ant Task", e);
+      throw new BuildException("Could not load the version information for SonarQube Ant Task", e);
     } finally {
       Closeables.closeQuietly(in);
     }
