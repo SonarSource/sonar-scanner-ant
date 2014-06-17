@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>sonar-ant-task</artifactId>
-  <version>2.2</version>
+  <version>2.3-SNAPSHOT</version>
 
   <name>Sonar Ant Task</name>
   <description />
@@ -53,7 +53,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-ant-task</url>
-    <tag>2.2</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
