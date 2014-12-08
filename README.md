@@ -1,12 +1,12 @@
-Sonar Ant Task
+SonarQube Ant Task
 =========================
 
-This is the Sonar Ant Task.
+This is the SonarQube Ant Task.
 
 Project homepage:
 http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+SonarQube+Ant+Task
 
-How to use the Sonar Ant Task:
+How to use the SonarQube Ant Task:
 http://docs.codehaus.org/display/SONAR/Analyzing+with+SonarQube+Ant+Task
 
 Issue tracking:
