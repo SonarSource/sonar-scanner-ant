@@ -20,7 +20,6 @@
 
 package org.sonar.ant;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.sonar.runner.api.EmbeddedRunner;
@@ -48,7 +47,7 @@ public class SonarTask extends Task {
     launchAnalysis(allProps);
   }
 
-  @VisibleForTesting
+  // VisibleForTesting
   void launchAnalysis(Properties properties) {
     EmbeddedRunner.create()
       .addProperties(properties)
