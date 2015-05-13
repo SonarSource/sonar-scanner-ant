@@ -67,7 +67,7 @@ public class SonarTaskTest {
   private void execute() throws IOException {
     task = new SonarTask();
 
-    when(project.getBaseDir()).thenReturn(folder.newFile("baseDir"));
+    when(project.getBaseDir()).thenReturn(folder.newFolder());
     task.setProject(project);
     task = spy(task);
     doNothing().when(task).launchAnalysis(any(Properties.class));

@@ -25,10 +25,6 @@ import org.apache.tools.ant.Project;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 public class SonarTaskUtilsTest {
 
@@ -51,14 +47,14 @@ public class SonarTaskUtilsTest {
     logger.setMessageOutputLevel(2);
     project.addBuildListener(logger);
 
-    assertThat(SonarTaskUtils.getAntLoggerLever(project), is(2));
+    assertThat(SonarTaskUtils.getAntLoggerLever(project)).isEqualTo(2);
   }
 
   @Test
   public void shouldGetVersion() {
     String version = SonarTaskUtils.getTaskVersion();
-    assertThat(version, containsString("."));
-    assertThat(version, not(containsString("$")));
+    assertThat(version).contains(".");
+    assertThat(version).doesNotContain("$");
   }
 
 }

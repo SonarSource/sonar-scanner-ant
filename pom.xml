@@ -61,7 +61,6 @@
   </issueManagement>
 
   <properties>
-    <sonar.version>3.0</sonar.version>
     <ant.version>1.7.0</ant.version>
   </properties>
 
@@ -81,9 +80,15 @@
     </dependency>
     <!-- Unit tests -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-testing-harness</artifactId>
-      <version>${sonar.version}</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
