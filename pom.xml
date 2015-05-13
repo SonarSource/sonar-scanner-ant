@@ -12,7 +12,7 @@
 
   <name>Sonar Ant Task</name>
   <description />
-  <url>http://docs.codehaus.org/display/SONAR/Sonar+Ant+Task</url>
+  <url>http://docs.sonarqube.org/display/SONAR/Analyzing+with+SonarQube+Ant+Task</url>
   <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource</name>
@@ -53,7 +53,6 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-ant-task</url>
-    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
