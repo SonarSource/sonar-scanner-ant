@@ -10,7 +10,7 @@
   <artifactId>sonar-ant-task</artifactId>
   <version>2.3-SNAPSHOT</version>
 
-  <name>Sonar Ant Task</name>
+  <name>SonarQube Ant Task</name>
   <description />
   <url>http://docs.sonarqube.org/display/SONAR/Analyzing+with+SonarQube+Ant+Task</url>
   <inceptionYear>2011</inceptionYear>
@@ -70,6 +70,11 @@
       <artifactId>sonar-runner-api</artifactId>
       <version>2.4</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.0</version>
+    </dependency>
     <!-- Would be provided by environment -->
     <dependency>
       <groupId>org.apache.ant</groupId>
@@ -116,6 +121,17 @@
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>com.google.code.findbugs:jsr305</artifact>
+                  <includes>
+                    <include>javax/annotation/ParametersAreNonnullByDefault.class</include>
+                  </includes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
