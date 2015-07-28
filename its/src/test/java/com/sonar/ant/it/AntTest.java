@@ -28,6 +28,8 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.version.Version;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -38,10 +40,6 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
@@ -69,9 +67,9 @@ public class AntTest {
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-version.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-project-metadata-java.xml"))
-        // SONAR-4358
+      // SONAR-4358
       .addPlugin(MavenLocation.create("org.codehaus.sonar-plugins", "sonar-cobertura-plugin", "1.6.1"))
-        // PMD is used by testJavaVersion
+      // PMD is used by testJavaVersion
       .addPlugin(MavenLocation.create("org.codehaus.sonar-plugins.java", "sonar-pmd-plugin", "2.4"));
 
     orchestrator = builder.build();
@@ -385,7 +383,7 @@ public class AntTest {
 
     String logs = analysisResults.getLogs();
     // verbose
-    assertThat(logs).contains("DEBUG - Decorator time:");
+    assertThat(logs).contains("DEBUG - Sensors");
   }
 
   /**
