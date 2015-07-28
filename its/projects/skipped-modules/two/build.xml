@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Module Two" default="all" basedir=".">
+
+  <echo>Module Two</echo>
+
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/bin" />
+
+  <path id="classpath">
+  </path>
+
+  <target name="clean" description="Remove all files created by the build process.">
+    <delete dir="${build.dir}" />
+    <delete dir=".sonar" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac destdir="${classes.dir}" classpathref="classpath" fork="true" debug="true" includeAntRuntime="false">
+      <src path="src/java" />
+    </javac>
+  </target>
+
+  <target name="all"
+          depends="clean,compile" />
+
+</project>

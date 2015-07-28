@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jacoco-modules-two">
+
+  <!-- "extend" parent build definition -->
+  <import file="../build.xml" />
+
+  <!-- initialization for this submodule -->
+  <target name="init" depends="global-init">
+    <echo>Init two</echo>
+    <!-- Here is where we control the exact dependencies required to build this submodule: -->
+    <path id="submodule.path">
+      <fileset dir="../../ant-libs/junit/" includes="*.jar" />
+    </path>
+  </target>
+
+  <!-- prepare this submodule -->
+  <target name="prepare" depends="init">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${reports.junit.dir}" />
+    <mkdir dir="${classes.dir}" />
+  </target>
+
+  <!-- clean this submodule -->
+  <target name="clean" depends="init">
+    <delete dir="${build.dir}" />
+    <delete dir=".sonar" />
+  </target>
+
+  <!-- compile this submodule -->
+  <target name="compile" depends="compile-sources" />
+
+  <!-- Execute test of this submodule -->
+  <target name="test" depends="test-with-jacoco" />
+
+</project>

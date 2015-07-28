@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project name="Ant Groovy" default="sonar" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+  <!-- properties for project directory structure -->
+  <property name="dir.src" value="src"/>
+  <property name="dir.build" value="build"/>
+  <property name="dir.dist" value="dist"/>
+  <property name="dir.lib" value="lib"/>
+
+  <!-- setup a project classpath that includes the external libs -->
+  <path id="project.classpath">
+    <!-- include the classes in this project -->
+    <pathelement location="${dir.build}"/>
+    <!-- include external libraries -->
+    <fileset dir="${dir.lib}" includes="**/*.jar"/>
+  </path>
+
+  <!-- add external tasks -->
+  <taskdef name="groovyc" classpathref="project.classpath" classname="org.codehaus.groovy.ant.Groovyc"/>
+
+  <!-- create output directories -->
+  <target name="prepare" depends="clean">
+    <mkdir dir="${dir.build}"/>
+  </target>
+
+  <!-- clean -->
+  <target name="clean" description="Remove all generated files.">
+    <delete dir="${dir.build}"/>
+  </target>
+
+  <!-- compile java (if you have any) and groovy source -->
+  <target name="compile" depends="prepare">
+    <groovyc srcdir="${dir.src}" destdir="${dir.build}" stacktrace="true">
+      <classpath refid="project.classpath"/>
+      <javac debug="on"/>
+    </groovyc>
+  </target>
+
+  <!-- Define Sonar Properties -->
+  <property name="sonar.projectKey" value="org.sonar.ant.tests:groovy" />
+  <property name="sonar.projectName" value="Ant Groovy" />
+  <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
+  <property name="sonar.sources" value="${dir.src}" />
+  <property name="sonar.dynamicAnalysis" value="false" />
+  <property name="sonar.language" value="grvy" />
+  <property name="sonar.profile" value="groovy" />
+	
+  <target name="sonar" depends="compile">
+    <!-- Import Sonar Ant tasks -->
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <classpath path="../../target/sonar-ant-task.jar" />
+    </taskdef>
+
+    <!-- Execute Sonar -->
+    <sonar:sonar />
+  </target>
+
+</project>

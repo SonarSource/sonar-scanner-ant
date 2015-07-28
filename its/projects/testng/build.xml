@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Ant TestNG" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+
+  <property name="src.dir" value="src"/>
+
+  <property name="lib.dir" value="../ant-libs"/>
+
+  <property name="lib.testng.dir" value="${lib.dir}/testng"/>
+
+  <property name="build.dir" value="target"/>
+
+  <property name="classes.dir" value="${build.dir}/classes"/>
+
+  <property name="reports.dir" value="${build.dir}/reports"/>
+  <property name="reports.testng.dir" value="${reports.dir}/testng/"/>
+  <!-- TestNG also generates this -->
+  <property name="reports.junit.xml.dir" value="${reports.testng.dir}/junitreports/"/>
+
+  <path id="classpath">
+    <fileset dir="${lib.testng.dir}" includes="*.jar"/>
+  </path>
+
+  <taskdef name="testng" classname="org.testng.TestNGAntTask">
+    <classpath>
+      <path refid="classpath"/>
+    </classpath>
+  </taskdef>
+
+  <target name="clean" description="Remove all files created by the build/test process.">
+    <delete dir="${build.dir}" />
+    <delete dir="${reports.dir}" />
+  </target>
+
+  <target name="init" >
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${reports.dir}" />
+    <mkdir dir="${reports.testng.dir}" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" fork="true" debug="true" includeAntRuntime="false" />
+  </target>
+
+  <target name="test" depends="compile">
+    <!-- Import JaCoCo Ant tasks -->
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath path="../ant-libs/JaCoCo/jacocoant.jar" />
+    </taskdef>
+
+    <jacoco:coverage destfile="target/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant">
+      <testng workingDir="${basedir}" outputdir="${reports.testng.dir}">
+        <classpath location="${classes.dir}" />
+        <classpath refid="classpath" />
+
+        <classfileset dir="${build.dir}" includes="**/*Test.class" />
+      </testng>
+    </jacoco:coverage>
+  </target>
+
+  <!-- Define Sonar Properties -->
+  <property name="sonar.projectKey" value="org.sonar.ant.tests:testng" />
+  <property name="sonar.projectName" value="Ant TestNG" />
+  <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
+  <property name="sonar.sources" value="${src.dir}" />
+  <property name="sonar.binaries" value="${classes.dir}" />
+  <property name="sonar.dynamicAnalysis" value="reuseReports" />
+  <property name="sonar.junit.reportsPath" value="${reports.junit.xml.dir}" />
+  <property name="sonar.core.codeCoveragePlugin" value="jacoco" />
+  <!-- Deprecated property needed for IT with Sonar 3.0 -->
+  <property name="sonar.surefire.reportsPath" value="${reports.junit.xml.dir}" />
+
+
+  <target name="sonar">
+    <!-- Import Sonar Ant tasks -->
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <classpath path="../../../target/sonar-ant-task.jar" />
+    </taskdef>
+
+    <!-- Execute Sonar -->
+    <sonar:sonar />
+  </target>
+
+  <target name="sonarFFFFFFF">
+    <!-- Execute Sonar -->
+    <sonar:sonar key="org.sonar.ant.tests:testng" version="0.1-SNAPSHOT">
+      <property key="sonar.core.codeCoveragePlugin" value="jacoco" />
+      <property key="sonar.jacoco.antTargets" value="test" />
+
+      <property key="sonar.surefire.reportsPath" value="${reports.junit.xml.dir}" />
+
+      <sources>
+        <path location="${src.dir}"/>
+      </sources>
+      <binaries>
+        <path location="${classes.dir}"/>
+      </binaries>
+    </sonar:sonar>
+  </target>
+
+  <target name="all"
+          depends="clean,compile,test,sonar"
+          description="" />
+
+</project>

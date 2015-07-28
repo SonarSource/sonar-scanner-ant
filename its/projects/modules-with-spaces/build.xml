@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Modules" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+
+  <echo>Root module</echo>
+
+  <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+    <classpath path="../../../target/sonar-ant-task.jar"/>
+  </taskdef>
+
+  <target name="clean">
+    <delete dir=".sonar"/>
+    <ant dir="one" target="clean"/>
+    <ant dir="two" target="clean"/>
+  </target>
+
+  <target name="compile">
+    <ant dir="one" target="compile"/>
+    <ant dir="two" target="compile"/>
+  </target>
+
+  <!-- Define Sonar Properties -->
+  <property name="sonar.projectKey" value="org.sonar.ant.tests.modules:root" />
+  <property name="sonar.projectName" value="Project with modules with spaces" />
+  <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
+  <property name="sonar.sources" value="src/java" />
+  <!-- The "sonar.modules" property here contains spaces and return carriages -->
+  <property name="sonar.modules"
+  	        value="
+  	                  one,
+  	                  two
+  	              "/>
+  <property name="one.sonar.projectName" value="Module One" />
+  <property name="two.sonar.projectName" value="Module Two" />
+	
+  <target name="sonar">
+    <!-- Import Sonar Ant tasks -->
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <classpath path="../../../target/sonar-ant-task.jar" />
+    </taskdef>
+
+    <!-- Execute Sonar -->
+    <sonar:sonar />
+  </target>
+
+  <target name="all"
+          depends="clean,compile,sonar"/>
+
+</project>

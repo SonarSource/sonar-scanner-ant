@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="3.0.1" sequence="0" timestamp="1438093719000" analysisTimestamp="1438093726164" release="">
+  <Project>
+    <Jar>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/src/UseDeprecatedMethodFromJDK.java</Jar>
+    <Jar>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/build/classes/UseDeprecatedMethodFromJDK.class</Jar>
+    <AuxClasspathEntry>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/build/classes</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/.sonar/findbugs/annotations.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/.sonar/findbugs/jsr305.jar</AuxClasspathEntry>
+    <WrkDir>/home/julien/Prog/Projects/sonar-ant-task/its/projects/squid/.sonar</WrkDir>
+  </Project>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Tue, 28 Jul 2015 16:28:39 +0200" total_classes="1" referenced_classes="10" total_bugs="0" total_size="6" num_packages="1" java_version="1.8.0_51" vm_version="25.51-b03" cpu_seconds="6.71" clock_seconds="1.57" peak_mbytes="438.50" alloc_mbytes="1710.50" gc_seconds="0.00">
+    <FileStats path="UseDeprecatedMethodFromJDK.java" bugCount="0" size="6"/>
+    <PackageStats package="" total_bugs="0" total_types="1" total_size="6">
+      <ClassStats class="UseDeprecatedMethodFromJDK" sourceFile="UseDeprecatedMethodFromJDK.java" interface="false" size="6" bugs="0"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="277" invocations="305" avgMicrosecondsPerInvocation="908" maxMicrosecondsPerInvocation="21540" standardDeviationMircosecondsPerInvocation="1912"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="72" invocations="10" avgMicrosecondsPerInvocation="7224" maxMicrosecondsPerInvocation="25789" standardDeviationMircosecondsPerInvocation="8793"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="62" invocations="306" avgMicrosecondsPerInvocation="204" maxMicrosecondsPerInvocation="1026" standardDeviationMircosecondsPerInvocation="112"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="53" invocations="10" avgMicrosecondsPerInvocation="5336" maxMicrosecondsPerInvocation="26098" standardDeviationMircosecondsPerInvocation="7611"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="52" invocations="36" avgMicrosecondsPerInvocation="1469" maxMicrosecondsPerInvocation="6046" standardDeviationMircosecondsPerInvocation="1480"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="48" invocations="2" avgMicrosecondsPerInvocation="24409" maxMicrosecondsPerInvocation="48309" standardDeviationMircosecondsPerInvocation="23900"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="47" invocations="272" avgMicrosecondsPerInvocation="175" maxMicrosecondsPerInvocation="2072" standardDeviationMircosecondsPerInvocation="300"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="46" invocations="23" avgMicrosecondsPerInvocation="2037" maxMicrosecondsPerInvocation="29247" standardDeviationMircosecondsPerInvocation="6038"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="26" invocations="10" avgMicrosecondsPerInvocation="2660" maxMicrosecondsPerInvocation="11929" standardDeviationMircosecondsPerInvocation="3529"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="24" invocations="10" avgMicrosecondsPerInvocation="2453" maxMicrosecondsPerInvocation="15036" standardDeviationMircosecondsPerInvocation="4352"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="23" invocations="10" avgMicrosecondsPerInvocation="2398" maxMicrosecondsPerInvocation="8720" standardDeviationMircosecondsPerInvocation="3304"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

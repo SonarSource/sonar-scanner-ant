@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Missing Props Ant Project" default="sonar" basedir="." xmlns:sonar="antlib:org.sonar.ant">
+	
+  <target name="sonar">
+    <!-- Import Sonar Ant tasks -->
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+      <classpath path="../../../target/sonar-ant-task.jar" />
+    </taskdef>
+
+    <!-- Execute Sonar -->
+    <sonar:sonar>
+    </sonar:sonar>
+  </target>
+
+</project>
