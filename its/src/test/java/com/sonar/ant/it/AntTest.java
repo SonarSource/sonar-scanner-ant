@@ -26,7 +26,6 @@ import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.AntBuild;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.version.Version;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -57,20 +56,25 @@ public class AntTest {
   public static void startServer() {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
 
-    builder.addPlugin(MavenLocation.create("org.codehaus.sonar-plugins", "sonar-groovy-plugin", "1.0.1"))
+    builder
+      .setOrchestratorProperty("groovyVersion", "LATEST_RELEASE")
+      .addPlugin("groovy")
       // TODO Java projects should be replaced by Xoo projects
       .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
       .addPlugin("java")
       .setOrchestratorProperty("findbugsVersion", "LATEST_RELEASE")
       .addPlugin("findbugs")
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-groovy.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-empty.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-version.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-project-metadata-java.xml"))
       // SONAR-4358
-      .addPlugin(MavenLocation.create("org.codehaus.sonar-plugins", "sonar-cobertura-plugin", "1.6.1"))
+      .setOrchestratorProperty("coberturaVersion", "LATEST_RELEASE")
+      .addPlugin("cobertura")
       // PMD is used by testJavaVersion
-      .addPlugin(MavenLocation.create("org.codehaus.sonar-plugins.java", "sonar-pmd-plugin", "2.4"));
+      .setOrchestratorProperty("pmdVersion", "LATEST_RELEASE")
+      .addPlugin("pmd");
 
     orchestrator = builder.build();
     orchestrator.start();
