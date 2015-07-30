@@ -26,7 +26,6 @@ import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.AntBuild;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.version.Version;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.After;
@@ -41,11 +40,8 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 public class AntTest {
-
-  private static Version antTaskVersion;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -78,8 +74,6 @@ public class AntTest {
 
     orchestrator = builder.build();
     orchestrator.start();
-
-    antTaskVersion = Version.create(orchestrator.getConfiguration().getString("antTask.version"));
   }
 
   @AfterClass
@@ -378,7 +372,6 @@ public class AntTest {
    */
   @Test
   public void testVerbose() {
-    assumeTrue(antTaskVersion.isGreaterThanOrEquals("2.1"));
     AntBuild build = AntBuild.create()
       .setBuildLocation(FileLocation.of("projects/shared/build.xml"))
       // Workaround for ORCH-174
