@@ -6,7 +6,7 @@ Project homepage:
 http://docs.sonarqube.org/display/SONAR/Installing+and+Configuring+Ant+SonarQube+Task
 
 How to use the SonarQube Ant Task:
-http://docs.sonarqube.org/display/SONAR/Analyzing+with+SonarQube+Ant+Task
+http://docs.sonarqube.org/display/SONAR/Analyzing+with+Ant+SonarQube+Task
 
 Issue tracking:
 http://jira.sonarsource.com/browse/SONARPLUGINS/component/11224
