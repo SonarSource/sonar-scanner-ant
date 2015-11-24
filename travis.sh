@@ -7,6 +7,12 @@ function installTravisTools {
   curl -sSL https://github.com/SonarSource/travis-utils/tarball/v21 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
+
+function strongEcho {
+  echo ""
+  echo "================ $1 ================="
+}
+
 installTravisTools
 
 case "$TARGET" in
