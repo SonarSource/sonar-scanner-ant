@@ -77,7 +77,7 @@ IT)
     build_snapshot "SonarSource/sonarqube"
   fi
 
-  cd it
+  cd its
   mvn -Dsonar.runtimeVersion="${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false verify
   ;;
 
