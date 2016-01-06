@@ -1,7 +1,7 @@
 /*
- * SonarQube Ant Task
- * Copyright (C) 2011 SonarSource
- * dev@sonar.codehaus.org
+ * SonarQube Scanner for Ant
+ * Copyright (C) 2011-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -13,16 +13,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ant;
-
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.BuildListener;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
+package org.sonarsource.scanner.ant;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +26,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.BuildListener;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
 
-public final class SonarTaskUtils {
+public final class SonarQubeTaskUtils {
 
-  private SonarTaskUtils() {
+  private SonarQubeTaskUtils() {
     // only static methods
   }
 
@@ -45,8 +44,8 @@ public final class SonarTaskUtils {
    * @return Jar which contains this class
    */
   public static URL getJarPath() {
-    String pathToClass = "/" + SonarTask.class.getName().replace('.', '/') + ".class";
-    URL url = SonarTask.class.getResource(pathToClass);
+    String pathToClass = "/" + SonarQubeTask.class.getName().replace('.', '/') + ".class";
+    URL url = SonarQubeTask.class.getResource(pathToClass);
     if (url != null) {
       String uri = extractURI(pathToClass, url.toString());
       if (uri != null) {
@@ -106,7 +105,7 @@ public final class SonarTaskUtils {
    * @return the version
    */
   public static String getTaskVersion() {
-    try (InputStream in = SonarTask.class.getResourceAsStream("/org/sonar/ant/version.txt")) {
+    try (InputStream in = SonarQubeTask.class.getResourceAsStream("version.txt")) {
       Properties props = new Properties();
       props.load(in);
       return props.getProperty("version");

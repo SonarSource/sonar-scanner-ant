@@ -1,7 +1,7 @@
 /*
- * SonarQube Ant Task
- * Copyright (C) 2011 SonarSource
- * dev@sonar.codehaus.org
+ * SonarQube Scanner for Ant
+ * Copyright (C) 2011-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ant;
+package org.sonarsource.scanner.ant;
 
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
@@ -25,7 +25,7 @@ import org.sonar.runner.api.EmbeddedRunner;
 
 import java.util.Properties;
 
-public class SonarTask extends Task {
+public class SonarQubeTask extends Task {
 
   private static final String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
   private static final String VERBOSE_PROPERTY = "sonar.verbose";
@@ -34,12 +34,12 @@ public class SonarTask extends Task {
   @Override
   public void execute() {
     log(Main.getAntVersion());
-    log("SonarQube Ant Task version: " + SonarTaskUtils.getTaskVersion());
-    log("Loaded from: " + SonarTaskUtils.getJarPath());
+    log("SonarQube Ant Task version: " + SonarQubeTaskUtils.getTaskVersion());
+    log("Loaded from: " + SonarQubeTaskUtils.getJarPath());
 
     Properties allProps = new Properties();
     allProps.put(PROJECT_BASEDIR_PROPERTY, getProject().getBaseDir().getAbsolutePath());
-    if (SonarTaskUtils.getAntLoggerLever(getProject()) >= 3) {
+    if (SonarQubeTaskUtils.getAntLoggerLever(getProject()) >= 3) {
       allProps.put(VERBOSE_PROPERTY, "true");
     }
     allProps.putAll(getProject().getProperties());
@@ -52,7 +52,7 @@ public class SonarTask extends Task {
       .addProperties(properties)
       .unmask("org.apache.tools.ant")
       .unmask("org.sonar.ant")
-      .setApp("Ant", SonarTaskUtils.getTaskVersion())
+      .setApp("Ant", SonarQubeTaskUtils.getTaskVersion())
       .addExtensions(getProject())
       .execute();
   }

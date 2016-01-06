@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package com.sonar.ant.it;
+package org.sonarsource.scanner.ant.it;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

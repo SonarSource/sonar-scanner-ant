@@ -1,7 +1,7 @@
 /*
- * SonarQube Ant Task
- * Copyright (C) 2011 SonarSource
- * dev@sonar.codehaus.org
+ * SonarQube Scanner for Ant
+ * Copyright (C) 2011-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -13,11 +13,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ant;
+package org.sonarsource.scanner.ant;
 
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-
+import org.sonarsource.scanner.ant.SonarQubeTask;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SonarTaskTest {
+public class SonarQubeTaskTest {
 
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private SonarTask task;
+  private SonarQubeTask task;
   private Project project;
 
   @Test
@@ -64,7 +64,7 @@ public class SonarTaskTest {
   }
 
   private void execute() throws IOException {
-    task = new SonarTask();
+    task = new SonarQubeTask();
 
     when(project.getBaseDir()).thenReturn(folder.newFolder());
     task.setProject(project);

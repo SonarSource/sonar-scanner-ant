@@ -4,7 +4,7 @@
   <echo>Root module</echo>
 
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-    <classpath path="../../../target/sonar-ant-task.jar"/>
+    <classpath path="../../../target/sonarqube-ant-task.jar"/>
   </taskdef>
 
   <target name="clean">
@@ -32,7 +32,7 @@
   <target name="sonar">
     <!-- Import Sonar Ant tasks -->
     <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-      <classpath path="../../../target/sonar-ant-task.jar" />
+      <classpath path="../../../target/sonarqube-ant-task.jar" />
     </taskdef>
 
     <!-- Execute Sonar -->
