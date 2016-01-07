@@ -375,12 +375,12 @@ public class AntTest {
     AntBuild build = AntBuild.create()
       .setBuildLocation(FileLocation.of("projects/shared/build.xml"))
       // Workaround for ORCH-174
-      .setTargets("all", "clean", "-v");
+      .setTargets("all clean -v");
     BuildResult analysisResults = orchestrator.executeBuild(build);
 
     String logs = analysisResults.getLogs();
-    // verbose
-    assertThat(logs).contains("DEBUG - Sensors");
+    // The list of Sensors is only displayed in DEBUG mode
+    assertThat(logs).contains("Sensors : ");
   }
 
   /**

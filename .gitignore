@@ -1,3 +1,6 @@
+# Ant
+build/
+
 # Maven
 target/
 
@@ -26,3 +29,6 @@ Icon?
 Thumbs.db 
 # Folder config file
 Desktop.ini
+
+# Sonar
+.sonar/

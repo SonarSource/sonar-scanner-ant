@@ -19,13 +19,22 @@
  */
 package org.sonarsource.scanner.ant;
 
+import java.util.Properties;
 import org.apache.tools.ant.Main;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.sonar.runner.api.EmbeddedRunner;
-
-import java.util.Properties;
+import org.sonar.runner.api.LogOutput;
+import org.sonar.runner.api.LogOutput.Level;
 
 public class SonarQubeTask extends Task {
+
+  private final class LogOutputImplementation implements LogOutput {
+    @Override
+    public void log(String formattedMessage, Level level) {
+      SonarQubeTask.this.log(formattedMessage, toAntLevel(level));
+    }
+  }
 
   private static final String PROJECT_BASEDIR_PROPERTY = "sonar.projectBaseDir";
   private static final String VERBOSE_PROPERTY = "sonar.verbose";
@@ -48,13 +57,37 @@ public class SonarQubeTask extends Task {
 
   // VisibleForTesting
   void launchAnalysis(Properties properties) {
-    EmbeddedRunner.create()
-      .addProperties(properties)
+    EmbeddedRunner runner = EmbeddedRunner.create(new LogOutputImplementation())
+      .addGlobalProperties(properties)
       .unmask("org.apache.tools.ant")
       .unmask("org.sonar.ant")
-      .setApp("Ant", SonarQubeTaskUtils.getTaskVersion())
-      .addExtensions(getProject())
-      .execute();
+      .setApp("Ant", SonarQubeTaskUtils.getTaskVersion());
+
+    runner.start();
+    try {
+      runner.addExtensions(getProject());
+    } catch (Exception e) {
+      // Not supported in recent SQ versions. Ignore
+    }
+    runner.runAnalysis(properties);
+    runner.stop();
+
   }
 
+  private static int toAntLevel(Level level) {
+    switch (level) {
+      case TRACE:
+        return Project.MSG_DEBUG;
+      case DEBUG:
+        return Project.MSG_VERBOSE;
+      case INFO:
+        return Project.MSG_INFO;
+      case WARN:
+        return Project.MSG_WARN;
+      case ERROR:
+        return Project.MSG_ERR;
+      default:
+        throw new IllegalArgumentException(level.name());
+    }
+  }
 }
