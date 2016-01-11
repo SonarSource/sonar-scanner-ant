@@ -9,7 +9,7 @@
 
   <groupId>org.sonarsource.scanner.ant</groupId>
   <artifactId>sonarqube-ant-task</artifactId>
-  <version>2.4</version>
+  <version>2.5-SNAPSHOT</version>
 
   <name>SonarQube Scanner for Ant</name>
   <description>This is an Ant task allowing to start SonarQube analysis</description>
@@ -54,7 +54,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-ant-task</url>
-    <tag>2.4</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
