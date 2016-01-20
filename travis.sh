@@ -28,7 +28,7 @@ CI)
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ "$TRAVIS_SECURE_ENV_VARS" == "true" ]; then
     strongEcho 'Build and analyze pull request'
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
       -Pcoverage-per-test -Dmaven.test.redirectTestOutputToFile=false -B -e -V \
       -Dsonar.analysis.mode=issues \
       -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
