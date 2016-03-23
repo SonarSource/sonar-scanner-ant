@@ -250,15 +250,6 @@ public class AntTest {
   }
 
   @Test
-  public void testSkippedModules() {
-    buildJava("skipped-modules", "all", "empty");
-
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("root")).getName()).isEqualTo("Root Module");
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("root:one"))).isNull();
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("root:two")).getName()).isEqualTo("Module Two");
-  }
-
-  @Test
   public void testCobertura() {
     buildJava("cobertura", "all", "empty");
     checkProjectAnalysed("org.sonar.ant.tests:cobertura", "empty");
