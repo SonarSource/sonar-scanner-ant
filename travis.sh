@@ -14,6 +14,8 @@ function strongEcho {
   echo "================ $1 ================="
 }
 
+#build_snapshot "SonarSource/sonar-scanner-api"
+
 case "$TARGET" in
 
 CI)

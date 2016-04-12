@@ -23,9 +23,8 @@ import java.util.Properties;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
-import org.sonar.runner.api.EmbeddedRunner;
-import org.sonar.runner.api.LogOutput;
-import org.sonar.runner.api.LogOutput.Level;
+import org.sonarsource.scanner.api.EmbeddedScanner;
+import org.sonarsource.scanner.api.LogOutput;
 
 public class SonarQubeTask extends Task {
 
@@ -57,7 +56,7 @@ public class SonarQubeTask extends Task {
 
   // VisibleForTesting
   void launchAnalysis(Properties properties) {
-    EmbeddedRunner runner = EmbeddedRunner.create(new LogOutputImplementation())
+    EmbeddedScanner runner = EmbeddedScanner.create(new LogOutputImplementation())
       .addGlobalProperties(properties)
       .unmask("org.apache.tools.ant")
       .unmask("org.sonar.ant")
@@ -74,7 +73,7 @@ public class SonarQubeTask extends Task {
 
   }
 
-  private static int toAntLevel(Level level) {
+  private static int toAntLevel(LogOutput.Level level) {
     switch (level) {
       case TRACE:
         return Project.MSG_DEBUG;
