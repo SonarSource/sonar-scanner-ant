@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sonarsource.scanner.ant</groupId>
+    <artifactId>ant</artifactId>
+    <version>2.5-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>sonarqube-ant-task</artifactId>
+  
+  <name>SonarQube Scanner for Ant</name>
+  <description>This is an Ant task allowing to start SonarQube analysis</description>
+  <url>http://docs.sonarqube.org/display/SONAR/Analyzing+with+SonarQube+Ant+Task</url>
+  <inceptionYear>2011</inceptionYear>
+  
+  <properties>
+    <ant.version>1.7.0</ant.version>
+  </properties>
+
+  <dependencies>
+    <!-- Would be embedded in final JAR -->
+    <dependency>
+      <groupId>org.sonarsource.sonar-runner</groupId>
+      <artifactId>sonar-runner-api</artifactId>
+      <version>2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    <!-- Would be provided by environment -->
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>${ant.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Unit tests -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>com.google.code.findbugs:jsr305</artifact>
+                  <includes>
+                    <include>javax/annotation/ParametersAreNonnullByDefault.class</include>
+                  </includes>
+                </filter>
+                <!-- Remove signatures from SQ Runner API -->
+                <filter>
+                  <artifact>org.sonarsource.sonar-runner:sonar-runner-api</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>

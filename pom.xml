@@ -3,13 +3,14 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>26</version>
+    <version>31</version>
     <relativePath />
   </parent>
 
   <groupId>org.sonarsource.scanner.ant</groupId>
-  <artifactId>sonarqube-ant-task</artifactId>
+  <artifactId>ant</artifactId>
   <version>2.5-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <name>SonarQube Scanner for Ant</name>
   <description>This is an Ant task allowing to start SonarQube analysis</description>
@@ -50,6 +51,10 @@
     </developer>
   </developers>
 
+  <modules>
+    <module>sonarqube-ant-task</module>
+  </modules>
+
   <scm>
     <connection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-ant-task.git</developerConnection>
@@ -62,92 +67,16 @@
   </issueManagement>
 
   <properties>
-    <ant.version>1.7.0</ant.version>
+    <gitRepositoryName>sonar-ant-task</gitRepositoryName>
   </properties>
 
-  <dependencies>
-    <!-- Would be embedded in final JAR -->
-    <dependency>
-      <groupId>org.sonarsource.sonar-runner</groupId>
-      <artifactId>sonar-runner-api</artifactId>
-      <version>2.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>3.0.0</version>
-    </dependency>
-    <!-- Would be provided by environment -->
-    <dependency>
-      <groupId>org.apache.ant</groupId>
-      <artifactId>ant</artifactId>
-      <version>${ant.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Unit tests -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>1.10.19</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
-      <version>1.4</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <finalName>${project.artifactId}</finalName>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-            <createDependencyReducedPom>false</createDependencyReducedPom>
-              <filters>
-                <filter>
-                  <artifact>com.google.code.findbugs:jsr305</artifact>
-                  <includes>
-                    <include>javax/annotation/ParametersAreNonnullByDefault.class</include>
-                  </includes>
-                </filter>
-                <!-- Remove signatures from SQ Runner API -->
-                <filter>
-                  <artifact>org.sonarsource.sonar-runner:sonar-runner-api</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <profiles>
+    <profile>
+      <id>its</id>
+      <modules>
+        <module>its</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>
