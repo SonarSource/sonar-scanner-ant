@@ -31,8 +31,8 @@
   <property name="sonar.projectName" value="Ant Project With Classpath" />
   <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
   <property name="sonar.sources" value="src" />
-  <property name="sonar.binaries" value="${classes.dir}" />
-  <pathconvert pathsep="," property="sonar.libraries" refid="classpath" />
+  <property name="sonar.java.binaries" value="${classes.dir}" />
+  <pathconvert pathsep="," property="sonar.java.libraries" refid="classpath" />
   <property name="sonar.profile" value="classpath" />
 
   <target name="sonar">

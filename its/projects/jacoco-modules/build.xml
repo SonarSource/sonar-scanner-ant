@@ -54,13 +54,10 @@
   <property name="sonar.projectName" value="jacoco-modules" />
   <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
   <property name="sonar.sources" value="src" />
-  <property name="sonar.binaries" value="target/classes" />
-  <property name="sonar.dynamicAnalysis" value="reuseReports" />
+  <property name="sonar.java.binaries" value="target/classes" />
   <property name="sonar.junit.reportsPath" value="target/junit" />
   <property name="sonar.core.codeCoveragePlugin" value="jacoco" />
   <property name="sonar.modules" value="one,two" />
-  <!-- Deprecated property needed for IT with Sonar 3.0 -->
-  <property name="sonar.surefire.reportsPath" value="target/junit" />
 
   <target name="sonar" depends="test">
     <!-- Import Sonar Ant tasks -->

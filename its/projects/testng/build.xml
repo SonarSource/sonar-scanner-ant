@@ -63,12 +63,9 @@
   <property name="sonar.projectName" value="Ant TestNG" />
   <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
   <property name="sonar.sources" value="${src.dir}" />
-  <property name="sonar.binaries" value="${classes.dir}" />
-  <property name="sonar.dynamicAnalysis" value="reuseReports" />
+  <property name="sonar.java.binaries" value="${classes.dir}" />
   <property name="sonar.junit.reportsPath" value="${reports.junit.xml.dir}" />
   <property name="sonar.core.codeCoveragePlugin" value="jacoco" />
-  <!-- Deprecated property needed for IT with Sonar 3.0 -->
-  <property name="sonar.surefire.reportsPath" value="${reports.junit.xml.dir}" />
 
 
   <target name="sonar">

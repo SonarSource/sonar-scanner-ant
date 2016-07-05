@@ -55,22 +55,11 @@ public class AntTest {
     builder
       .setOrchestratorProperty("groovyVersion", "LATEST_RELEASE")
       .addPlugin("groovy")
-      // TODO Java projects should be replaced by Xoo projects
       .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
       .addPlugin("java")
-      .setOrchestratorProperty("findbugsVersion", "LATEST_RELEASE")
-      .addPlugin("findbugs")
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-groovy.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-empty.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-version.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-project-metadata-java.xml"))
-      // SONAR-4358
-      .setOrchestratorProperty("coberturaVersion", "LATEST_RELEASE")
-      .addPlugin("cobertura")
-      // PMD is used by testJavaVersion
-      .setOrchestratorProperty("pmdVersion", "LATEST_RELEASE")
-      .addPlugin("pmd");
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"));
 
     orchestrator = builder.build();
     orchestrator.start();
@@ -88,16 +77,7 @@ public class AntTest {
     orchestrator.resetData();
   }
 
-  private void buildJava(String project, String target, String profile) {
-    AntBuild build = AntBuild.create()
-      .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
-      .setTargets(target, "clean")
-      .setProperty("sonar.language", "java")
-      .setProperty("sonar.profile", profile);
-    orchestrator.executeBuild(build);
-  }
-
-  private void buildGroovy(String project, String target, String profile) {
+  private void buildJava(String project, String target, @Nullable String profile) {
     AntBuild build = AntBuild.create()
       .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
       .setTargets(target, "clean")
@@ -105,21 +85,26 @@ public class AntTest {
     orchestrator.executeBuild(build);
   }
 
-  private void checkProjectAnalysed(String projectKey, String profile) {
+  private void buildGroovy(String project, String target, @Nullable String profile) {
+    AntBuild build = AntBuild.create()
+      .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
+      .setTargets(target, "clean")
+      .setProperty("sonar.profile", profile);
+    orchestrator.executeBuild(build);
+  }
+
+  private void checkProjectAnalysed(String projectKey, @Nullable String profile) {
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(projectKey, "profile", "quality_profiles"));
     assertThat(project.getVersion()).isEqualTo("0.1-SNAPSHOT");
-    if (orchestrator.getServer().version().isGreaterThanOrEquals("4.4")) {
-      // json format
+    if (profile != null) {
       assertThat(project.getMeasure("quality_profiles").getData()).as("Profile").contains(profile);
-    } else {
-      assertThat(project.getMeasure("profile").getData()).as("Profile").isEqualTo(profile);
     }
   }
 
   @Test
   public void testProjectMetadata() {
-    buildJava("project-metadata", "all", "project-metadata");
-    checkProjectAnalysed("org.sonar.ant.tests:project-metadata:1.1.x", "project-metadata");
+    buildJava("project-metadata", "all", null);
+    checkProjectAnalysed("org.sonar.ant.tests:project-metadata:1.1.x", null);
     Resource project = orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests:project-metadata:1.1.x"));
     assertThat(project.getName()).isEqualTo("Ant Project Metadata 1.1.x");
     assertThat(project.getDescription()).isEqualTo("Ant Project with complete metadata");
@@ -132,8 +117,8 @@ public class AntTest {
 
   @Test
   public void testProjectKeyWithoutGroupId() {
-    buildJava("project-key-without-groupId", "all", "empty");
-    checkProjectAnalysed("project-key-without-groupId", "empty");
+    buildJava("project-key-without-groupId", "all", null);
+    checkProjectAnalysed("project-key-without-groupId", null);
   }
 
   @Test
@@ -144,7 +129,7 @@ public class AntTest {
     List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("org.sonar.ant.tests:classpath")).list();
     assertThat(issues.size()).isEqualTo(2);
     assertThat(containsRule("squid:CallToDeprecatedMethod", issues)).isTrue();
-    assertThat(containsRule("findbugs:DM_EXIT", issues)).isTrue();
+    assertThat(containsRule("squid:S1147", issues)).isTrue();
   }
 
   /**
@@ -169,20 +154,6 @@ public class AntTest {
     assertThat(project.getMeasureValue("files")).isEqualTo(2.0);
     assertThat(project.getMeasureValue("classes")).isEqualTo(2.0);
     assertThat(project.getMeasureValue("functions")).isEqualTo(2.0);
-
-    if (!orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("4.2")) {
-      // the metric "packages" is removed in 4.2
-      assertThat(project.getMeasureValue("packages")).isEqualTo(1.0);
-    }
-  }
-
-  @Test
-  public void testJavaVersion() {
-    buildJava("java-version", "all", "java-version");
-    checkProjectAnalysed("org.sonar.ant.tests:java-version", "java-version");
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("org.sonar.ant.tests:java-version")).list();
-    assertThat(issues.size()).isEqualTo(1);
-    assertThat(issues.get(0).ruleKey()).isEqualTo("pmd:IntegerInstantiation");
   }
 
   @Test
@@ -191,21 +162,10 @@ public class AntTest {
     checkProjectAnalysed("org.sonar.ant.tests:java-without-bytecode", "empty");
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:java-without-bytecode",
-      "lines", "violations",
-      "lcom4", "suspect_lcom4_density", "lcom4_distribution",
-      "rfc", "rfc_distribution"));
+      "lines", "violations"));
 
-    assertThat(project.getMeasureValue("lines")).isGreaterThan(1.0);
-    assertThat(project.getMeasureValue("violations")).isGreaterThanOrEqualTo(0.0);
-
-    // no LCOM4
-    assertThat(project.getMeasureValue("lcom4")).isNull();
-    assertThat(project.getMeasureValue("suspect_lcom4_density")).isNull();
-    assertThat(project.getMeasureValue("lcom4_distribution")).isNull();
-
-    // no RFC
-    assertThat(project.getMeasureValue("rfc")).isNull();
-    assertThat(project.getMeasureValue("rfc_distribution")).isNull();
+    assertThat(project.getMeasureIntValue("lines")).isGreaterThan(1);
+    assertThat(project.getMeasureIntValue("violations")).isGreaterThanOrEqualTo(0);
   }
 
   /**
@@ -247,31 +207,6 @@ public class AntTest {
     assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root")).getName()).isEqualTo("Project with modules with spaces");
     assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root:one")).getName()).isEqualTo("Module One");
     assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root:two")).getName()).isEqualTo("Module Two");
-  }
-
-  @Test
-  public void testCobertura() {
-    buildJava("cobertura", "all", "empty");
-    checkProjectAnalysed("org.sonar.ant.tests:cobertura", "empty");
-
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:cobertura",
-      "line_coverage", "lines_to_cover", "uncovered_lines",
-      "branch_coverage", "conditions_to_cover", "uncovered_conditions",
-      "coverage",
-      "tests", "test_success_density"));
-
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4.0);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2.0);
-
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1.0);
-
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
-
-    assertThat(project.getMeasureValue("tests")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(50.0);
   }
 
   @Test

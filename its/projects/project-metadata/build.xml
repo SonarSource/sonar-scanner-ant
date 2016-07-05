@@ -31,7 +31,6 @@
   <property name="sonar.projectDescription" value="Ant Project with complete metadata" />
   <property name="sonar.sources" value="${src.dir}" />
   <property name="sonar.branch" value="1.1.x" />
-  <property name="sonar.profile" value="project-metadata" />
 	
   <target name="sonar">
     <!-- Import Sonar Ant tasks -->
