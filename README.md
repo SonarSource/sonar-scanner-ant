@@ -1,9 +1,9 @@
 SonarQube Scanner for Ant
 =========================
-[![Build Status](https://travis-ci.org/SonarSource/sonar-ant-task.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-ant-task)
+[![Build Status](https://travis-ci.org/SonarSource/sonar-scanner-ant.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-scanner-ant)
 
 Documentation:
-http://docs.sonarqube.org/display/SONAR/Analyzing+with+SonarQube+Scanner+for+Ant
+http://redirect.sonarsource.com/doc/ant-task.html
 
 Issue tracking:
 https://jira.sonarsource.com/projects/ANTTASK
