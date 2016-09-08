@@ -39,7 +39,7 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AntTest {
 
@@ -319,13 +319,10 @@ public class AntTest {
       .setTargets("sonar");
 
     BuildResult analysisResults = orchestrator.executeBuildQuietly(build);
-
-    // Do not work on Windows with Orchestrator
-    // assertThat(analysisResults.getStatus()).isEqualTo(1));
+    assertThat(analysisResults.getStatus()).isNotEqualTo(0);
 
     String logs = analysisResults.getLogs();
-    assertThat(logs).contains("You must define the following mandatory properties");
-    assertThat(logs).contains("sonar.projectKey, sonar.projectName, sonar.projectVersion, sonar.sources");
+    assertThat(logs).contains("You must define the following mandatory properties", "sonar.projectKey", "sonar.sources");
   }
 
   private static boolean containsRule(final String ruleKey, List<Issue> issues) {
