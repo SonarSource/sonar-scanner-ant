@@ -19,22 +19,22 @@
  */
 package org.sonarsource.scanner.ant;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Vector;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.sonarsource.scanner.ant.SonarQubeTask;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.Vector;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,7 +60,19 @@ public class SonarQubeTaskTest {
     ArgumentCaptor<Properties> argument = ArgumentCaptor.forClass(Properties.class);
     verify(task).launchAnalysis(argument.capture());
     assertThat(argument.getValue().getProperty("sonar.foo")).isEqualTo("bar");
+  }
 
+  @Test
+  public void testSkip() throws IOException {
+    project = mock(Project.class);
+
+    Properties props = new Properties();
+    props.put("sonar.scanner.skip", "true");
+    when(project.getProperties()).thenReturn(props);
+
+    execute();
+
+    verify(task, never()).launchAnalysis(any());
   }
 
   private void execute() throws IOException {

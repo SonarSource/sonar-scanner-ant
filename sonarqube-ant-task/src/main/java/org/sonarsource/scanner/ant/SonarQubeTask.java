@@ -25,6 +25,8 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.sonarsource.scanner.api.EmbeddedScanner;
 import org.sonarsource.scanner.api.LogOutput;
+import org.sonarsource.scanner.api.ScanProperties;
+import org.sonarsource.scanner.api.Utils;
 
 public class SonarQubeTask extends Task {
 
@@ -32,6 +34,23 @@ public class SonarQubeTask extends Task {
     @Override
     public void log(String formattedMessage, Level level) {
       SonarQubeTask.this.log(formattedMessage, toAntLevel(level));
+    }
+
+    private int toAntLevel(LogOutput.Level level) {
+      switch (level) {
+        case TRACE:
+          return Project.MSG_DEBUG;
+        case DEBUG:
+          return Project.MSG_VERBOSE;
+        case INFO:
+          return Project.MSG_INFO;
+        case WARN:
+          return Project.MSG_WARN;
+        case ERROR:
+          return Project.MSG_ERR;
+        default:
+          throw new IllegalArgumentException(level.name());
+      }
     }
   }
 
@@ -50,7 +69,15 @@ public class SonarQubeTask extends Task {
     if (SonarQubeTaskUtils.getAntLoggerLever(getProject()) >= 3) {
       allProps.put(VERBOSE_PROPERTY, "true");
     }
+
+    allProps.putAll(Utils.loadEnvironmentProperties(System.getenv()));
     allProps.putAll(getProject().getProperties());
+
+    if ("true".equalsIgnoreCase(allProps.getProperty(ScanProperties.SKIP))) {
+      log("SonarQube Scanner analysis skipped");
+      return;
+    }
+
     launchAnalysis(allProps);
   }
 
@@ -62,31 +89,17 @@ public class SonarQubeTask extends Task {
       .unmask("org.sonar.ant")
       .setApp("Ant", SonarQubeTaskUtils.getTaskVersion());
 
-    runner.start();
     try {
-      runner.addExtensions(getProject());
-    } catch (Exception e) {
-      // Not supported in recent SQ versions. Ignore
-    }
-    runner.runAnalysis(properties);
-    runner.stop();
-
-  }
-
-  private static int toAntLevel(LogOutput.Level level) {
-    switch (level) {
-      case TRACE:
-        return Project.MSG_DEBUG;
-      case DEBUG:
-        return Project.MSG_VERBOSE;
-      case INFO:
-        return Project.MSG_INFO;
-      case WARN:
-        return Project.MSG_WARN;
-      case ERROR:
-        return Project.MSG_ERR;
-      default:
-        throw new IllegalArgumentException(level.name());
+      runner.start();
+      try {
+        runner.addExtensions(getProject());
+      } catch (Exception e) {
+        // Not supported in recent SQ versions. Ignore
+      }
+      runner.runAnalysis(properties);
+    } finally {
+      runner.stop();
     }
   }
+
 }
