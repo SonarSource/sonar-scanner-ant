@@ -9,7 +9,7 @@
 
   <groupId>org.sonarsource.scanner.ant</groupId>
   <artifactId>ant</artifactId>
-  <version>2.5</version>
+  <version>2.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarQube Scanner for Ant</name>
@@ -59,7 +59,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-scanner-ant.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-scanner-ant.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-scanner-ant</url>
-    <tag>2.5</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
