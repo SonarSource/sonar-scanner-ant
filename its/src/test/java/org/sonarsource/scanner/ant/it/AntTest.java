@@ -21,12 +21,18 @@ package org.sonarsource.scanner.ant.it;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.AntBuild;
 import com.sonar.orchestrator.build.BuildResult;
+import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -36,10 +42,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
+import static java.lang.Double.parseDouble;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.WsMeasures.Measure;
 
 public class AntTest {
 
@@ -94,10 +108,10 @@ public class AntTest {
   }
 
   private void checkProjectAnalysed(String projectKey, @Nullable String profile) {
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(projectKey, "profile", "quality_profiles"));
-    assertThat(project.getVersion()).isEqualTo("0.1-SNAPSHOT");
+    Map<String, Measure> measures = getMeasuresByMetricKey(projectKey, "quality_profiles");
+    assertThat(getProjectVersion(projectKey)).isEqualTo("0.1-SNAPSHOT");
     if (profile != null) {
-      assertThat(project.getMeasure("quality_profiles").getData()).as("Profile").contains(profile);
+      assertThat(measures.get("quality_profiles").getValue()).as("Profile").contains(profile);
     }
   }
 
@@ -105,14 +119,10 @@ public class AntTest {
   public void testProjectMetadata() {
     buildJava("project-metadata", "all", null);
     checkProjectAnalysed("org.sonar.ant.tests:project-metadata:1.1.x", null);
-    Resource project = orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests:project-metadata:1.1.x"));
+    Component project = getComponent("org.sonar.ant.tests:project-metadata:1.1.x");
     assertThat(project.getName()).isEqualTo("Ant Project Metadata 1.1.x");
     assertThat(project.getDescription()).isEqualTo("Ant Project with complete metadata");
-    assertThat(project.getVersion()).isEqualTo("0.1-SNAPSHOT");
-    if (!orchestrator.getServer().version().isGreaterThanOrEquals("4.2")) {
-      assertThat(project.getLanguage()).isEqualTo("java");
-    }
-    assertThat(project.getLongName()).isEqualTo("Ant Project Metadata 1.1.x");
+    assertThat(getProjectVersion("org.sonar.ant.tests:project-metadata:1.1.x")).isEqualTo("0.1-SNAPSHOT");
   }
 
   @Test
@@ -149,11 +159,10 @@ public class AntTest {
   public void testCustomLayout() {
     buildJava("custom-layout", "all", "empty");
     checkProjectAnalysed("org.sonar.ant.tests:custom-layout", "empty");
-    Resource project = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics("org.sonar.ant.tests:custom-layout", "packages", "files", "classes", "functions"));
-    assertThat(project.getMeasureValue("files")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("classes")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("functions")).isEqualTo(2.0);
+    Map<String, Measure> measures = getMeasuresByMetricKey("org.sonar.ant.tests:custom-layout", "files", "classes", "functions");
+    assertThat(parseDouble(measures.get("files").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(measures.get("classes").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(measures.get("functions").getValue())).isEqualTo(2.0);
   }
 
   @Test
@@ -161,11 +170,10 @@ public class AntTest {
     buildJava("java-without-bytecode", "all", "empty");
     checkProjectAnalysed("org.sonar.ant.tests:java-without-bytecode", "empty");
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:java-without-bytecode",
-      "lines", "violations"));
-
-    assertThat(project.getMeasureIntValue("lines")).isGreaterThan(1);
-    assertThat(project.getMeasureIntValue("violations")).isGreaterThanOrEqualTo(0);
+    Map<String, Measure> measures = getMeasuresByMetricKey("org.sonar.ant.tests:java-without-bytecode",
+      "lines", "violations");
+    assertThat(parseDouble(measures.get("lines").getValue())).isGreaterThan(1);
+    assertThat(parseDouble(measures.get("violations").getValue())).isGreaterThanOrEqualTo(0);
   }
 
   /**
@@ -177,22 +185,23 @@ public class AntTest {
     checkProjectAnalysed("org.sonar.ant.tests.modules:root", "empty");
 
     // Module name
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root")).getName()).isEqualTo("Project with modules");
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root:one")).getName()).isEqualTo("Module One");
+    assertThat(getComponent("org.sonar.ant.tests.modules:root").getName()).isEqualTo("Project with modules");
+    assertThat(getComponent("org.sonar.ant.tests.modules:root:one").getName()).isEqualTo("Module One");
 
     // Metrics on project
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests.modules:root", "lines", "files"));
-    assertThat(project.getMeasureValue("lines")).isEqualTo(10.0);
-    assertThat(project.getMeasureValue("files")).isEqualTo(2.0);
+
+    Map<String, Measure> projectMeasures = getMeasuresByMetricKey("org.sonar.ant.tests.modules:root", "lines", "files");
+    assertThat(parseDouble(projectMeasures.get("lines").getValue())).isEqualTo(10.0);
+    assertThat(parseDouble(projectMeasures.get("files").getValue())).isEqualTo(2.0);
 
     // Metrics on module
-    Resource module = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests.modules:root:one", "lines", "files"));
-    assertThat(module.getMeasureValue("lines")).isEqualTo(5.0);
-    assertThat(module.getMeasureValue("files")).isEqualTo(1.0);
+    Map<String, Measure> moduleMeasures = getMeasuresByMetricKey("org.sonar.ant.tests.modules:root:one", "lines", "files");
+    assertThat(parseDouble(moduleMeasures.get("lines").getValue())).isEqualTo(5.0);
+    assertThat(parseDouble(moduleMeasures.get("files").getValue())).isEqualTo(1.0);
 
     // Metrics on file
-    Resource file = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests.modules:root:one", "lines"));
-    assertThat(file.getMeasureValue("lines")).isEqualTo(5.0);
+    Map<String, Measure> fileMeasures = getMeasuresByMetricKey("org.sonar.ant.tests.modules:root:one", "lines");
+    assertThat(parseDouble(fileMeasures.get("lines").getValue())).isEqualTo(5.0);
   }
 
   /**
@@ -204,9 +213,9 @@ public class AntTest {
 
     checkProjectAnalysed("org.sonar.ant.tests.modules:root", "empty");
 
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root")).getName()).isEqualTo("Project with modules with spaces");
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root:one")).getName()).isEqualTo("Module One");
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery("org.sonar.ant.tests.modules:root:two")).getName()).isEqualTo("Module Two");
+    assertThat(getComponent("org.sonar.ant.tests.modules:root").getName()).isEqualTo("Project with modules with spaces");
+    assertThat(getComponent("org.sonar.ant.tests.modules:root:one").getName()).isEqualTo("Module One");
+    assertThat(getComponent("org.sonar.ant.tests.modules:root:two").getName()).isEqualTo("Module Two");
   }
 
   @Test
@@ -214,24 +223,24 @@ public class AntTest {
     buildJava("jacoco", "all", "empty");
     checkProjectAnalysed("org.sonar.ant.tests:jacoco", "empty");
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:jacoco",
+    Map<String, Measure> measures = getMeasuresByMetricKey("org.sonar.ant.tests:jacoco",
       "line_coverage", "lines_to_cover", "uncovered_lines",
       "branch_coverage", "conditions_to_cover", "uncovered_conditions",
       "coverage",
-      "tests", "test_success_density"));
+      "tests", "test_success_density");
 
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4.0);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2.0);
+    assertThat(parseDouble(measures.get("line_coverage").getValue())).isEqualTo(50.0);
+    assertThat(parseDouble(measures.get("lines_to_cover").getValue())).isEqualTo(4.0);
+    assertThat(parseDouble(measures.get("uncovered_lines").getValue())).isEqualTo(2.0);
 
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1.0);
+    assertThat(parseDouble(measures.get("branch_coverage").getValue())).isEqualTo(50.0);
+    assertThat(parseDouble(measures.get("conditions_to_cover").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(measures.get("uncovered_conditions").getValue())).isEqualTo(1.0);
 
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+    assertThat(parseDouble(measures.get("coverage").getValue())).isEqualTo(50.0);
 
-    assertThat(project.getMeasureValue("tests")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(50.0);
+    assertThat(parseDouble(measures.get("tests").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(measures.get("test_success_density").getValue())).isEqualTo(50.0);
   }
 
   @Test
@@ -240,24 +249,20 @@ public class AntTest {
     checkProjectAnalysed("org.sonar.ant.tests.jacoco-modules:root", "empty");
 
     // Metrics on project
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests.jacoco-modules:root",
-      "lines",
-      "tests", "test_success_density",
-      "coverage"));
-    assertThat(project.getMeasureValue("lines")).isEqualTo(52.0);
-    assertThat(project.getMeasureValue("tests")).isEqualTo(4.0);
-    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(54.5);
+    Map<String, Measure> projectMeasures = getMeasuresByMetricKey("org.sonar.ant.tests.jacoco-modules:root",
+      "lines", "tests", "test_success_density", "coverage");
+    assertThat(parseDouble(projectMeasures.get("lines").getValue())).isEqualTo(52.0);
+    assertThat(parseDouble(projectMeasures.get("tests").getValue())).isEqualTo(4.0);
+    assertThat(parseDouble(projectMeasures.get("test_success_density").getValue())).isEqualTo(50.0);
+    assertThat(parseDouble(projectMeasures.get("coverage").getValue())).isEqualTo(54.5);
 
     // Metrics on module
-    Resource module = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests.jacoco-modules:root:one",
-      "lines",
-      "tests", "test_success_density",
-      "coverage"));
-    assertThat(module.getMeasureValue("lines")).isEqualTo(26.0);
-    assertThat(module.getMeasureValue("tests")).isEqualTo(2.0);
-    assertThat(module.getMeasureValue("test_success_density")).isEqualTo(50.0);
-    assertThat(module.getMeasureValue("coverage")).isEqualTo(54.5);
+    Map<String, Measure> moduleMeasures = getMeasuresByMetricKey("org.sonar.ant.tests.jacoco-modules:root:one",
+      "lines", "tests", "test_success_density", "coverage");
+    assertThat(parseDouble(moduleMeasures.get("lines").getValue())).isEqualTo(26.0);
+    assertThat(parseDouble(moduleMeasures.get("tests").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(moduleMeasures.get("test_success_density").getValue())).isEqualTo(50.0);
+    assertThat(parseDouble(moduleMeasures.get("coverage").getValue())).isEqualTo(54.5);
   }
 
   @Test
@@ -265,24 +270,24 @@ public class AntTest {
     buildJava("testng", "all", "empty");
     checkProjectAnalysed("org.sonar.ant.tests:testng", "empty");
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:testng",
+    Map<String, Measure> projectMeasures = getMeasuresByMetricKey("org.sonar.ant.tests:testng",
       "line_coverage", "lines_to_cover", "uncovered_lines",
       "branch_coverage", "conditions_to_cover", "uncovered_conditions",
       "coverage",
-      "tests", "test_success_density"));
+      "tests", "test_success_density");
 
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(55.6);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(9.0);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(4.0);
+    assertThat(parseDouble(projectMeasures.get("line_coverage").getValue())).isEqualTo(55.6);
+    assertThat(parseDouble(projectMeasures.get("lines_to_cover").getValue())).isEqualTo(9.0);
+    assertThat(parseDouble(projectMeasures.get("uncovered_lines").getValue())).isEqualTo(4.0);
 
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1.0);
+    assertThat(parseDouble(projectMeasures.get("branch_coverage").getValue())).isEqualTo(50.0);
+    assertThat(parseDouble(projectMeasures.get("conditions_to_cover").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(projectMeasures.get("uncovered_conditions").getValue())).isEqualTo(1.0);
 
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(54.5);
+    assertThat(parseDouble(projectMeasures.get("coverage").getValue())).isEqualTo(54.5);
 
-    assertThat(project.getMeasureValue("tests")).isEqualTo(2.0);
-    assertThat(project.getMeasureValue("test_success_density")).isEqualTo(50.0);
+    assertThat(parseDouble(projectMeasures.get("tests").getValue())).isEqualTo(2.0);
+    assertThat(parseDouble(projectMeasures.get("test_success_density").getValue())).isEqualTo(50.0);
   }
 
   @Test
@@ -290,7 +295,7 @@ public class AntTest {
     buildGroovy("groovy", "sonar", "groovy");
     checkProjectAnalysed("org.sonar.ant.tests:groovy", "groovy");
 
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("org.sonar.ant.tests:groovy", "ncloc")).getMeasureValue("ncloc")).isGreaterThan(5.0);
+    assertThat(parseDouble(getMeasuresByMetricKey("org.sonar.ant.tests:groovy", "ncloc").get("ncloc").getValue())).isGreaterThan(5.0);
   }
 
   /**
@@ -332,6 +337,53 @@ public class AntTest {
         return input != null && ruleKey.equals(input.ruleKey());
       }
     });
+  }
+
+  private static Map<String, Measure> getMeasuresByMetricKey(String componentKey, String... metricKeys) {
+    return getStreamMeasures(componentKey, metricKeys)
+      .filter(Measure::hasValue)
+      .collect(Collectors.toMap(Measure::getMetric, Function.identity()));
+  }
+
+  private static Stream<Measure> getStreamMeasures(String componentKey, String... metricKeys) {
+    return newWsClient().measures().component(new ComponentWsRequest()
+      .setComponentKey(componentKey)
+      .setMetricKeys(asList(metricKeys)))
+      .getComponent().getMeasuresList()
+      .stream();
+  }
+
+  private static Component getComponent(String componentKey) {
+    return newWsClient().components().show(new ShowWsRequest().setKey((componentKey))).getComponent();
+  }
+
+  private static String getProjectVersion(String componentKey) {
+    // Waiting for SONAR-7745 to have version in api/components/show, we use internal api/navigation/component WS to get the component
+    // version
+    String content = newWsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", componentKey))
+      .failIfNotSuccessful()
+      .content();
+    return ComponentNavigation.parse(content).getVersion();
+  }
+
+  private static WsClient newWsClient() {
+    Server server = orchestrator.getServer();
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(server.getUrl())
+      .build());
+  }
+
+  private static class ComponentNavigation {
+    private String version;
+
+    String getVersion() {
+      return version;
+    }
+
+    static ComponentNavigation parse(String json) {
+      Gson gson = new Gson();
+      return gson.fromJson(json, ComponentNavigation.class);
+    }
   }
 
 }
