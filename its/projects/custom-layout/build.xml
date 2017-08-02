@@ -29,7 +29,8 @@
   <property name="sonar.projectName" value="Custom Layout" />
   <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
   <property name="sonar.sources" value="src1,src2" />
-	
+	<property name="sonar.java.binaries" value="${classes.dir}" />
+	  
   <target name="sonar">
     <!-- Import Sonar Ant tasks -->
     <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
