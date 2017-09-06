@@ -8,12 +8,6 @@ jdk:
 script:
   - ./travis.sh
 
-env:
-  - TARGET=CI
-
-matrix:
-  fast_finish: true
-
 cache:
   directories:
     - $HOME/.m2/repository
@@ -23,4 +17,5 @@ cache:
 notifications:
   email: false
   webhooks:
-    - secure: "2R/xoUrUKWfvITG1BQzLhkWFCL5VzFzc/wdDhQypzk+f6hEwuXDUbwo4+xkyVSPJZSLW4tC6WlqlzrjtRACTp9yIO8KSRMMUFwurot5P4xhNUbxGJLiQK7MG4hPa+QCmfcHDm28jmfec1ci2gq0tl49iUpuuUUo86Q+37uGGqP0=" 
+    - secure: "2R/xoUrUKWfvITG1BQzLhkWFCL5VzFzc/wdDhQypzk+f6hEwuXDUbwo4+xkyVSPJZSLW4tC6WlqlzrjtRACTp9yIO8KSRMMUFwurot5P4xhNUbxGJLiQK7MG4hPa+QCmfcHDm28jmfec1ci2gq0tl49iUpuuUUo86Q+37uGGqP0="
+  on_start: always
