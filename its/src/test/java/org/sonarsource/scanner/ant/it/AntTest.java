@@ -43,6 +43,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -53,7 +54,6 @@ import org.sonarqube.ws.client.measure.ComponentWsRequest;
 import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.WsMeasures.Measure;
 
 public class AntTest {
 
@@ -67,8 +67,6 @@ public class AntTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
 
     builder
-      .setOrchestratorProperty("groovyVersion", "LATEST_RELEASE")
-      .addPlugin("groovy")
       .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
       .addPlugin("java")
       .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-groovy.xml"))
@@ -92,14 +90,6 @@ public class AntTest {
   }
 
   private void buildJava(String project, String target, @Nullable String profile) {
-    AntBuild build = AntBuild.create()
-      .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
-      .setTargets(target, "clean")
-      .setProperty("sonar.profile", profile);
-    orchestrator.executeBuild(build);
-  }
-
-  private void buildGroovy(String project, String target, @Nullable String profile) {
     AntBuild build = AntBuild.create()
       .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
       .setTargets(target, "clean")
@@ -288,14 +278,6 @@ public class AntTest {
 
     assertThat(parseDouble(projectMeasures.get("tests").getValue())).isEqualTo(2.0);
     assertThat(parseDouble(projectMeasures.get("test_success_density").getValue())).isEqualTo(50.0);
-  }
-
-  @Test
-  public void testGroovy() {
-    buildGroovy("groovy", "sonar", "groovy");
-    checkProjectAnalysed("org.sonar.ant.tests:groovy", "groovy");
-
-    assertThat(parseDouble(getMeasuresByMetricKey("org.sonar.ant.tests:groovy", "ncloc").get("ncloc").getValue())).isGreaterThan(5.0);
   }
 
   /**
