@@ -4,7 +4,7 @@
 
 SQ_VERSION: 
   - DEV
-  - LTS
+  - LATEST_RELEASE[6.7]
 
 SLAVE:
   - linux
