@@ -23,11 +23,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.AntBuild;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -35,8 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -60,29 +59,13 @@ public class AntTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static Orchestrator orchestrator = null;
-
-  @BeforeClass
-  public static void startServer() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv();
-
-    builder
-      .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
-      .addPlugin("java")
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-groovy.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-empty.xml"))
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"));
-
-    orchestrator = builder.build();
-    orchestrator.start();
-  }
-
-  @AfterClass
-  public static void stopServer() {
-    if (orchestrator != null) {
-      orchestrator.stop();
-    }
-  }
+  @ClassRule
+  public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[6.7]"))
+    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-empty.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-classpath.xml"))
+    .build();
 
   @After
   public void resetData() {
