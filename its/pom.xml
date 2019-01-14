@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <version>3.19.0.1641</version>
+      <version>3.22.0.1791</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
-      <version>5.6</version>
+      <version>6.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -40,13 +40,13 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.5.2</version>
+      <version>3.11.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.3.1</version>
+      <version>2.8.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

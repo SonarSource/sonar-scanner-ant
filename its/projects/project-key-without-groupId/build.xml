@@ -15,7 +15,7 @@
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5" target="1.5" fork="true" debug="true" includeAntRuntime="false" />
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" source="6" target="6" fork="true" debug="true" includeAntRuntime="false" />
   </target>
 
   <!-- Define Sonar Properties -->
