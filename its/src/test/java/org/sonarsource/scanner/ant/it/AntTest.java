@@ -178,7 +178,7 @@ public class AntTest {
     assertThat(analysisResults.getStatus()).isNotEqualTo(0);
 
     String logs = analysisResults.getLogs();
-    assertThat(logs).contains("You must define the following mandatory properties", "sonar.projectKey", "sonar.sources");
+    assertThat(logs).contains("You must define the following mandatory properties", "sonar.projectKey");
   }
 
   private static boolean containsRule(final String ruleKey, List<Issue> issues) {
