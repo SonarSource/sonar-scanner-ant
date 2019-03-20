@@ -72,11 +72,10 @@ public class AntTest {
     orchestrator.resetData();
   }
 
-  private void buildJava(String project, String target, @Nullable String profile) {
+  private void buildJava(String project, String target) {
     AntBuild build = AntBuild.create()
       .setBuildLocation(FileLocation.of("projects/" + project + "/build.xml"))
-      .setTargets(target, "clean")
-      .setProperty("sonar.profile", profile);
+      .setTargets(target, "clean");
     orchestrator.executeBuild(build);
   }
 
@@ -90,7 +89,7 @@ public class AntTest {
 
   @Test
   public void testProjectMetadata() {
-    buildJava("project-metadata", "all", null);
+    buildJava("project-metadata", "all");
     checkProjectAnalysed("org.sonar.ant.tests:project-metadata:1.1.x", null);
     Component project = getComponent("org.sonar.ant.tests:project-metadata:1.1.x");
     assertThat(project.getName()).isEqualTo("Ant Project Metadata 1.1.x");
@@ -100,16 +99,20 @@ public class AntTest {
 
   @Test
   public void testProjectKeyWithoutGroupId() {
-    buildJava("project-key-without-groupId", "all", null);
+    buildJava("project-key-without-groupId", "all");
     checkProjectAnalysed("project-key-without-groupId", null);
   }
 
   @Test
   public void testClasspath() {
-    buildJava("classpath", "all", "classpath");
-    checkProjectAnalysed("org.sonar.ant.tests:classpath", "classpath");
+    String projectKey = "org.sonar.ant.tests:classpath";
 
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("org.sonar.ant.tests:classpath")).list();
+    orchestrator.getServer().provisionProject(projectKey, "Classpath");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "java", "classpath");
+    buildJava("classpath", "all");
+    checkProjectAnalysed(projectKey, "classpath");
+
+    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots(projectKey)).list();
     assertThat(issues.size()).isEqualTo(2);
     assertThat(containsRule("squid:CallToDeprecatedMethod", issues)).isTrue();
     assertThat(containsRule("squid:S1147", issues)).isTrue();
@@ -120,8 +123,13 @@ public class AntTest {
    */
   @Test
   public void testSquid() {
-    buildJava("squid", "all", "classpath");
-    checkProjectAnalysed("org.sonar.ant.tests:squid", "classpath");
+    String projectKey = "org.sonar.ant.tests:squid";
+
+    orchestrator.getServer().provisionProject(projectKey, "Squid");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "java", "classpath");
+
+    buildJava("squid", "all");
+    checkProjectAnalysed(projectKey, "classpath");
 
     List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("org.sonar.ant.tests:squid")).list();
     assertThat(issues.size()).isEqualTo(1);
@@ -130,8 +138,13 @@ public class AntTest {
 
   @Test
   public void testCustomLayout() {
-    buildJava("custom-layout", "all", "empty");
-    checkProjectAnalysed("org.sonar.ant.tests:custom-layout", "empty");
+    String projectKey = "org.sonar.ant.tests:custom-layout";
+
+    orchestrator.getServer().provisionProject(projectKey, "Custom layout");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "java", "empty");
+
+    buildJava("custom-layout", "all");
+    checkProjectAnalysed(projectKey, "empty");
     Map<String, Measure> measures = getMeasuresByMetricKey("org.sonar.ant.tests:custom-layout", "files", "classes", "functions");
     assertThat(parseDouble(measures.get("files").getValue())).isEqualTo(2.0);
     assertThat(parseDouble(measures.get("classes").getValue())).isEqualTo(2.0);
@@ -140,8 +153,13 @@ public class AntTest {
 
   @Test
   public void testJavaWithoutBytecode() {
-    buildJava("java-without-bytecode", "all", "empty");
-    checkProjectAnalysed("org.sonar.ant.tests:java-without-bytecode", "empty");
+    String projectKey = "org.sonar.ant.tests:java-without-bytecode";
+
+    orchestrator.getServer().provisionProject(projectKey, "No bytecode");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "java", "empty");
+
+    buildJava("java-without-bytecode", "all");
+    checkProjectAnalysed(projectKey, "empty");
 
     Map<String, Measure> measures = getMeasuresByMetricKey("org.sonar.ant.tests:java-without-bytecode",
       "lines", "violations");
