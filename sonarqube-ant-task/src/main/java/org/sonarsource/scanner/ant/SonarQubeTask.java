@@ -98,7 +98,11 @@ public class SonarQubeTask extends Task {
       }
       runner.runAnalysis(properties);
     } finally {
-      runner.stop();
+      try {
+        runner.stop();
+      } catch (Exception e) {
+        log("Could not stop runner", e, Project.MSG_WARN);
+      }
     }
   }
 
