@@ -19,6 +19,8 @@
  */
 package org.sonarsource.scanner.ant;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Project;
@@ -64,16 +66,16 @@ public class SonarQubeTask extends Task {
     log("SonarQube Ant Task version: " + SonarQubeTaskUtils.getTaskVersion());
     log("Loaded from: " + SonarQubeTaskUtils.getJarPath());
 
-    Properties allProps = new Properties();
+    Map<String, String> allProps = new HashMap<>();
     allProps.put(PROJECT_BASEDIR_PROPERTY, getProject().getBaseDir().getAbsolutePath());
     if (SonarQubeTaskUtils.getAntLoggerLever(getProject()) >= 3) {
       allProps.put(VERBOSE_PROPERTY, "true");
     }
 
-    allProps.putAll(Utils.loadEnvironmentProperties(System.getenv()));
+    putAll(Utils.loadEnvironmentProperties(System.getenv()), allProps);
     allProps.putAll(getProject().getProperties());
 
-    if ("true".equalsIgnoreCase(allProps.getProperty(ScanProperties.SKIP))) {
+    if ("true".equalsIgnoreCase(allProps.get(ScanProperties.SKIP))) {
       log("SonarQube Scanner analysis skipped");
       return;
     }
@@ -81,25 +83,18 @@ public class SonarQubeTask extends Task {
     launchAnalysis(allProps);
   }
 
-  // VisibleForTesting
-  void launchAnalysis(Properties properties) {
-    EmbeddedScanner runner = EmbeddedScanner.create(new LogOutputImplementation())
-      .addGlobalProperties(properties)
-      .unmask("org.apache.tools.ant")
-      .unmask("org.sonar.ant")
-      .setApp("Ant", SonarQubeTaskUtils.getTaskVersion());
-
-    try {
-      runner.start();
-      try {
-        runner.addExtensions(getProject());
-      } catch (Exception e) {
-        // Not supported in recent SQ versions. Ignore
-      }
-      runner.runAnalysis(properties);
-    } finally {
-      runner.stop();
+  static void putAll(Properties src, Map<String, String> dest) {
+    for (final String name : src.stringPropertyNames()) {
+      dest.put(name, src.getProperty(name));
     }
+  }
+
+  // VisibleForTesting
+  void launchAnalysis(Map<String, String> properties) {
+    EmbeddedScanner runner = EmbeddedScanner.create("Ant", SonarQubeTaskUtils.getTaskVersion(), new LogOutputImplementation())
+      .addGlobalProperties(properties);
+    runner.start();
+    runner.execute(properties);
   }
 
 }

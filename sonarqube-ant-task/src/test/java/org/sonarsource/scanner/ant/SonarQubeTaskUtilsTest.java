@@ -22,9 +22,8 @@ package org.sonarsource.scanner.ant;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.junit.Test;
-import org.sonarsource.scanner.ant.SonarQubeTaskUtils;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SonarQubeTaskUtilsTest {
 
