@@ -19,8 +19,14 @@
  */
 package org.sonarsource.scanner.ant;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -30,8 +36,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonarsource.scanner.api.LogOutput.Level;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -77,11 +85,16 @@ public class SonarQubeTaskTest {
   }
 
   private void execute() throws IOException {
+    execute(Collections.emptyMap());
+  }
+
+  private void execute(Map<String, String> env) throws IOException {
     task = new SonarQubeTask();
 
     when(project.getBaseDir()).thenReturn(folder.newFolder());
     task.setProject(project);
     task = spy(task);
+    when(task.getEnv()).thenReturn(env);
     doNothing().when(task).launchAnalysis(any(Map.class));
 
     task.execute();
@@ -94,7 +107,64 @@ public class SonarQubeTaskTest {
     testSonarVerboseForAntLevel(2, null);
     testSonarVerboseForAntLevel(3, "true");
     testSonarVerboseForAntLevel(4, "true");
+  }
 
+  @Test
+  public void testLogLevel() {
+    task = new SonarQubeTask();
+    SonarQubeTask.LogOutputImplementation logOutput = spy(task.new LogOutputImplementation());
+    logOutput.log("Message", Level.TRACE);
+    verify(logOutput).logWithTaskLogger("Message", Project.MSG_DEBUG);
+    logOutput.log("Message", Level.DEBUG);
+    verify(logOutput).logWithTaskLogger("Message", Project.MSG_VERBOSE);
+    logOutput.log("Message", Level.INFO);
+    verify(logOutput).logWithTaskLogger("Message", Project.MSG_INFO);
+    logOutput.log("Message", Level.WARN);
+    verify(logOutput).logWithTaskLogger("Message", Project.MSG_WARN);
+    logOutput.log("Message", Level.ERROR);
+    verify(logOutput).logWithTaskLogger("Message", Project.MSG_ERR);
+  }
+
+  @Test
+  public void readPropsFromEnvVariable() throws IOException {
+    project = mock(Project.class);
+    when(project.getProperties()).thenReturn(new Properties());
+
+    HashMap<String, String> env = new HashMap<>();
+    env.put("SONARQUBE_SCANNER_PARAMS", "{\"sonar.foo\": \"bar\"}");
+
+    execute(env);
+
+    ArgumentCaptor<Map<String, String>> argument = ArgumentCaptor.forClass(Map.class);
+    verify(task).launchAnalysis(argument.capture());
+    assertThat(argument.getValue().get("sonar.foo")).isEqualTo("bar");
+  }
+
+  @Test
+  public void simulationMode() throws IOException {
+    project = mock(Project.class);
+    Properties props = new Properties();
+    File out = folder.newFile();
+    props.put("sonar.scanner.dumpToFile", out.getAbsolutePath());
+    when(project.getProperties()).thenReturn(props);
+
+    task = new SonarQubeTask();
+
+    File baseDir = folder.newFolder();
+    when(project.getBaseDir()).thenReturn(baseDir);
+    task.setProject(project);
+
+    task.execute();
+
+    Properties outProps = new Properties();
+    try (BufferedReader reader = Files.newBufferedReader(out.toPath(), StandardCharsets.UTF_8)) {
+      outProps.load(reader);
+    }
+
+    assertThat(outProps.entrySet()).extracting(Map.Entry::getKey, Map.Entry::getValue)
+      .contains(
+        tuple("sonar.projectBaseDir", baseDir.getAbsolutePath()),
+        tuple("sonar.scanner.app", "Ant"));
   }
 
   private void testSonarVerboseForAntLevel(int antLevel, String sonarVerboseValue) throws IOException {

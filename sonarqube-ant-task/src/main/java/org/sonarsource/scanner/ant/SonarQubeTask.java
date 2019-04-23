@@ -32,10 +32,15 @@ import org.sonarsource.scanner.api.Utils;
 
 public class SonarQubeTask extends Task {
 
-  private final class LogOutputImplementation implements LogOutput {
+  class LogOutputImplementation implements LogOutput {
     @Override
     public void log(String formattedMessage, Level level) {
-      SonarQubeTask.this.log(formattedMessage, toAntLevel(level));
+      logWithTaskLogger(formattedMessage, toAntLevel(level));
+    }
+
+    // Visible for mocking
+    void logWithTaskLogger(String formattedMessage, int msgLevel) {
+      SonarQubeTask.this.log(formattedMessage, msgLevel);
     }
 
     private int toAntLevel(LogOutput.Level level) {
@@ -72,7 +77,7 @@ public class SonarQubeTask extends Task {
       allProps.put(VERBOSE_PROPERTY, "true");
     }
 
-    putAll(Utils.loadEnvironmentProperties(System.getenv()), allProps);
+    putAll(Utils.loadEnvironmentProperties(getEnv()), allProps);
     allProps.putAll(getProject().getProperties());
 
     if ("true".equalsIgnoreCase(allProps.get(ScanProperties.SKIP))) {
@@ -81,6 +86,11 @@ public class SonarQubeTask extends Task {
     }
 
     launchAnalysis(allProps);
+  }
+
+  // Visible for mocking
+  Map<String, String> getEnv() {
+    return System.getenv();
   }
 
   static void putAll(Properties src, Map<String, String> dest) {
