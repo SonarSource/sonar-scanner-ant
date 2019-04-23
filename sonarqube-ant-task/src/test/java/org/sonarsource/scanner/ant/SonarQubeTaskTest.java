@@ -21,6 +21,7 @@ package org.sonarsource.scanner.ant;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 import org.apache.tools.ant.DefaultLogger;
@@ -30,8 +31,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -57,9 +58,9 @@ public class SonarQubeTaskTest {
 
     execute();
 
-    ArgumentCaptor<Properties> argument = ArgumentCaptor.forClass(Properties.class);
+    ArgumentCaptor<Map<String, String>> argument = ArgumentCaptor.forClass(Map.class);
     verify(task).launchAnalysis(argument.capture());
-    assertThat(argument.getValue().getProperty("sonar.foo")).isEqualTo("bar");
+    assertThat(argument.getValue().get("sonar.foo")).isEqualTo("bar");
   }
 
   @Test
@@ -81,7 +82,7 @@ public class SonarQubeTaskTest {
     when(project.getBaseDir()).thenReturn(folder.newFolder());
     task.setProject(project);
     task = spy(task);
-    doNothing().when(task).launchAnalysis(any(Properties.class));
+    doNothing().when(task).launchAnalysis(any(Map.class));
 
     task.execute();
   }
@@ -106,9 +107,9 @@ public class SonarQubeTaskTest {
 
     execute();
 
-    ArgumentCaptor<Properties> argument = ArgumentCaptor.forClass(Properties.class);
+    ArgumentCaptor<Map<String, String>> argument = ArgumentCaptor.forClass(Map.class);
     verify(task).launchAnalysis(argument.capture());
-    assertThat(argument.getValue().getProperty("sonar.verbose")).isEqualTo(sonarVerboseValue);
+    assertThat(argument.getValue().get("sonar.verbose")).isEqualTo(sonarVerboseValue);
   }
 
   private static class MyCustomAntLogger extends DefaultLogger {
