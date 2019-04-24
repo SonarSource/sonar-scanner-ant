@@ -68,6 +68,7 @@
 
   <properties>
     <gitRepositoryName>sonar-scanner-ant</gitRepositoryName>
+    <artifactsToPublish>${project.groupId}:sonarqube-ant-task:jar</artifactsToPublish>
   </properties>
 
   <profiles>
