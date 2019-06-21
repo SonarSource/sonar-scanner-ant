@@ -90,11 +90,11 @@ public class AntTest {
   @Test
   public void testProjectMetadata() {
     buildJava("project-metadata", "all");
-    checkProjectAnalysed("org.sonar.ant.tests:project-metadata:1.1.x", null);
-    Component project = getComponent("org.sonar.ant.tests:project-metadata:1.1.x");
-    assertThat(project.getName()).isEqualTo("Ant Project Metadata 1.1.x");
+    checkProjectAnalysed("org.sonar.ant.tests:project-metadata", null);
+    Component project = getComponent("org.sonar.ant.tests:project-metadata");
+    assertThat(project.getName()).isEqualTo("Ant Project Metadata");
     assertThat(project.getDescription()).isEqualTo("Ant Project with complete metadata");
-    assertThat(getProjectVersion("org.sonar.ant.tests:project-metadata:1.1.x")).isEqualTo("0.1-SNAPSHOT");
+    assertThat(getProjectVersion("org.sonar.ant.tests:project-metadata")).isEqualTo("0.1-SNAPSHOT");
   }
 
   @Test

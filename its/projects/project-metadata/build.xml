@@ -30,8 +30,7 @@
   <property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
   <property name="sonar.projectDescription" value="Ant Project with complete metadata" />
   <property name="sonar.sources" value="${src.dir}" />
-  <property name="sonar.branch" value="1.1.x" />
-	
+
   <target name="sonar">
     <!-- Import Sonar Ant tasks -->
     <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
