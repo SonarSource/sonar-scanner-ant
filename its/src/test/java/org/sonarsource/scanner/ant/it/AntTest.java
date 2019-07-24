@@ -106,7 +106,7 @@ public class AntTest {
     checkProjectAnalysed(projectKey, "classpath");
 
     List<Issue> issues = newWsClient().issues().search(new SearchWsRequest()
-      .setComponentRoots(Collections.singletonList(projectKey)))
+      .setComponentKeys(Collections.singletonList(projectKey)))
       .getIssuesList();
 
     assertThat(issues.size()).isEqualTo(2);
@@ -128,7 +128,7 @@ public class AntTest {
     checkProjectAnalysed(projectKey, "classpath");
 
     List<Issue> issues = newWsClient().issues().search(new SearchWsRequest()
-      .setComponentRoots(Collections.singletonList("org.sonar.ant.tests:squid")))
+      .setComponentKeys(Collections.singletonList(projectKey)))
       .getIssuesList();
     assertThat(issues.size()).isEqualTo(1);
     assertThat(issues.get(0).getRule()).isEqualTo("squid:CallToDeprecatedMethod");
