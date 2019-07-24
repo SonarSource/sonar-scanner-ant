@@ -19,8 +19,6 @@
  */
 package org.sonarsource.scanner.ant.it;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.AntBuild;
@@ -28,6 +26,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -39,8 +38,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.GetRequest;
@@ -48,6 +46,7 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static java.lang.Double.parseDouble;
@@ -60,7 +59,7 @@ public class AntTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
+  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[6.7]"))
     .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/com/sonar/ant/it/profile-java-empty.xml"))
@@ -112,7 +111,10 @@ public class AntTest {
     buildJava("classpath", "all");
     checkProjectAnalysed(projectKey, "classpath");
 
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots(projectKey)).list();
+    List<Issues.Issue> issues = newWsClient().issues().search(new SearchWsRequest()
+      .setComponentRoots(Collections.singletonList(projectKey)))
+      .getIssuesList();
+
     assertThat(issues.size()).isEqualTo(2);
     assertThat(containsRule("squid:CallToDeprecatedMethod", issues)).isTrue();
     assertThat(containsRule("squid:S1147", issues)).isTrue();
@@ -131,9 +133,11 @@ public class AntTest {
     buildJava("squid", "all");
     checkProjectAnalysed(projectKey, "classpath");
 
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("org.sonar.ant.tests:squid")).list();
+    List<Issues.Issue> issues = newWsClient().issues().search(new SearchWsRequest()
+      .setComponentRoots(Collections.singletonList("org.sonar.ant.tests:squid")))
+      .getIssuesList();
     assertThat(issues.size()).isEqualTo(1);
-    assertThat(issues.get(0).ruleKey()).isEqualTo("squid:CallToDeprecatedMethod");
+    assertThat(issues.get(0).getRule()).isEqualTo("squid:CallToDeprecatedMethod");
   }
 
   @Test
@@ -193,19 +197,14 @@ public class AntTest {
       .setTargets("sonar");
 
     BuildResult analysisResults = orchestrator.executeBuildQuietly(build);
-    assertThat(analysisResults.getStatus()).isNotEqualTo(0);
+    assertThat(analysisResults.getLastStatus()).isNotEqualTo(0);
 
     String logs = analysisResults.getLogs();
     assertThat(logs).contains("You must define the following mandatory properties", "sonar.projectKey");
   }
 
-  private static boolean containsRule(final String ruleKey, List<Issue> issues) {
-    return Iterables.any(issues, new Predicate<Issue>() {
-      @Override
-      public boolean apply(@Nullable Issue input) {
-        return input != null && ruleKey.equals(input.ruleKey());
-      }
-    });
+  private static boolean containsRule(final String ruleKey, List<Issues.Issue> issues) {
+    return issues.stream().anyMatch(input -> input != null && ruleKey.equals(input.getRule()));
   }
 
   private static Map<String, Measure> getMeasuresByMetricKey(String componentKey, String... metricKeys) {
@@ -216,7 +215,7 @@ public class AntTest {
 
   private static Stream<Measure> getStreamMeasures(String componentKey, String... metricKeys) {
     return newWsClient().measures().component(new ComponentWsRequest()
-      .setComponentKey(componentKey)
+      .setComponent(componentKey)
       .setMetricKeys(asList(metricKeys)))
       .getComponent().getMeasuresList()
       .stream();
@@ -229,7 +228,7 @@ public class AntTest {
   private static String getProjectVersion(String componentKey) {
     // Waiting for SONAR-7745 to have version in api/components/show, we use internal api/navigation/component WS to get the component
     // version
-    String content = newWsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", componentKey))
+    String content = newWsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("component", componentKey))
       .failIfNotSuccessful()
       .content();
     return ComponentNavigation.parse(content).getVersion();
