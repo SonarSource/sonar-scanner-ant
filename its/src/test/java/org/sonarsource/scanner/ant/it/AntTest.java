@@ -22,6 +22,7 @@ package org.sonarsource.scanner.ant.it;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.AntBuild;
 import com.sonar.orchestrator.build.BuildResult;
+import com.sonar.orchestrator.build.BuildRunner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
@@ -179,6 +180,20 @@ public class AntTest {
     String logs = analysisResults.getLogs();
     // The list of Sensors is only displayed in DEBUG mode
     assertThat(logs).contains("Sensors : ");
+  }
+
+  @Test
+  public void testEnvironmentProperties() {
+    BuildRunner runner = new BuildRunner(orchestrator.getConfiguration());
+    AntBuild build = AntBuild.create()
+      .setEnvironmentVariable("SONAR_HOST_URL", "http://from-env.org")
+      .setBuildLocation(FileLocation.of("projects/shared/build.xml"))
+      .setTargets("all clean -v");
+    BuildResult analysisResults = runner.runQuietly(null, build);
+
+    assertThat(analysisResults.isSuccess()).isFalse();
+    String logs = analysisResults.getLogs();
+    assertThat(logs).contains("java.net.UnknownHostException: from-env.org");
   }
 
   /**
