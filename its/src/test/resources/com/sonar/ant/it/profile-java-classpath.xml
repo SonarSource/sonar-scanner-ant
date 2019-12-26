@@ -4,17 +4,17 @@
   <language>java</language>
   <rules>
     <rule>
-      <repositoryKey>squid</repositoryKey>
-      <key>CallToDeprecatedMethod</key>
+      <repositoryKey>java</repositoryKey>
+      <key>S1874</key>
       <priority>MINOR</priority>
     </rule>
     <rule>
-      <repositoryKey>squid</repositoryKey>
+      <repositoryKey>java</repositoryKey>
       <key>S1147</key>
       <priority>BLOCKER</priority>
     </rule>
     <rule>
-      <repositoryKey>squid</repositoryKey>
+      <repositoryKey>java</repositoryKey>
       <key>S1845</key>
       <priority>MAJOR</priority>
     </rule>
