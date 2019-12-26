@@ -111,8 +111,8 @@ public class AntTest {
       .getIssuesList();
 
     assertThat(issues.size()).isEqualTo(2);
-    assertThat(containsRule("squid:CallToDeprecatedMethod", issues)).isTrue();
-    assertThat(containsRule("squid:S1147", issues)).isTrue();
+    assertThat(containsRule("java:S1874", issues)).isTrue();
+    assertThat(containsRule("java:S1147", issues)).isTrue();
   }
 
   /**
@@ -132,7 +132,7 @@ public class AntTest {
       .setComponentKeys(Collections.singletonList(projectKey)))
       .getIssuesList();
     assertThat(issues.size()).isEqualTo(1);
-    assertThat(issues.get(0).getRule()).isEqualTo("squid:CallToDeprecatedMethod");
+    assertThat(issues.get(0).getRule()).isEqualTo("java:S1874");
   }
 
   @Test
