@@ -1,6 +1,6 @@
 SonarQube Scanner for Ant
 =========================
-[![Build Status](https://travis-ci.org/SonarSource/sonar-scanner-ant.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-scanner-ant)
+[![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-scanner-ant.svg)](https://cirrus-ci.com/github/SonarSource/sonar-scanner-ant)
 
 Documentation:
 http://redirect.sonarsource.com/doc/ant-task.html
