@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -60,7 +61,7 @@ public class SonarQubeTaskTest {
   public void testAntProjectPropertiesPassedToSonarRunner() throws IOException {
     project = mock(Project.class);
 
-    Properties props = new Properties();
+    Hashtable<String, Object> props = new Hashtable<>();
     props.put("sonar.foo", "bar");
     when(project.getProperties()).thenReturn(props);
 
@@ -75,7 +76,7 @@ public class SonarQubeTaskTest {
   public void testSkip() throws IOException {
     project = mock(Project.class);
 
-    Properties props = new Properties();
+    Hashtable<String, Object> props = new Hashtable<>();
     props.put("sonar.scanner.skip", "true");
     when(project.getProperties()).thenReturn(props);
 
@@ -128,7 +129,7 @@ public class SonarQubeTaskTest {
   @Test
   public void readPropsFromEnvVariable() throws IOException {
     project = mock(Project.class);
-    when(project.getProperties()).thenReturn(new Properties());
+    when(project.getProperties()).thenReturn(new Hashtable<>());
 
     HashMap<String, String> env = new HashMap<>();
     env.put("SONARQUBE_SCANNER_PARAMS", "{\"sonar.foo\": \"bar\"}");
@@ -143,7 +144,7 @@ public class SonarQubeTaskTest {
   @Test
   public void simulationMode() throws IOException {
     project = mock(Project.class);
-    Properties props = new Properties();
+    Hashtable<String, Object> props = new Hashtable<>();
     File out = folder.newFile();
     props.put("sonar.scanner.dumpToFile", out.getAbsolutePath());
     when(project.getProperties()).thenReturn(props);
@@ -170,7 +171,7 @@ public class SonarQubeTaskTest {
   private void testSonarVerboseForAntLevel(int antLevel, String sonarVerboseValue) throws IOException {
     project = mock(Project.class);
 
-    Properties props = new Properties();
+    Hashtable<String, Object> props = new Hashtable<>();
     when(project.getProperties()).thenReturn(props);
 
     when(project.getBuildListeners()).thenReturn(new Vector(Arrays.asList(new MyCustomAntLogger(antLevel))));
