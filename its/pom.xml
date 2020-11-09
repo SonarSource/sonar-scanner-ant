@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <version>3.26.0.2111</version>
+      <version>3.33.0.2677</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
