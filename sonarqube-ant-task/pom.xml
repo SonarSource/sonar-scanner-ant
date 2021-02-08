@@ -14,7 +14,7 @@
   <inceptionYear>2011</inceptionYear>
   
   <properties>
-    <ant.version>1.9.15</ant.version>
+    <ant.version>1.10.9</ant.version>
   </properties>
 
   <dependencies>
