@@ -30,6 +30,8 @@ import org.sonarsource.scanner.api.LogOutput;
 import org.sonarsource.scanner.api.ScanProperties;
 import org.sonarsource.scanner.api.Utils;
 
+import static java.util.stream.Collectors.toMap;
+
 public class SonarQubeTask extends Task {
 
   class LogOutputImplementation implements LogOutput {
@@ -78,7 +80,11 @@ public class SonarQubeTask extends Task {
     }
 
     putAll(Utils.loadEnvironmentProperties(getEnv()), allProps);
-    allProps.putAll(getProject().getProperties());
+    allProps.putAll(
+      getProject().getProperties()
+        .entrySet()
+        .stream()
+        .collect(toMap(Map.Entry::getKey, entry -> entry.getValue().toString())));
 
     if ("true".equalsIgnoreCase(allProps.get(ScanProperties.SKIP))) {
       log("SonarQube Scanner analysis skipped");
