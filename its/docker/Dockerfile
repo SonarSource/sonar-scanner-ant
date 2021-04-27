@@ -11,14 +11,14 @@
 # Google Cloud Container Registry. See section "gke_container" of .cirrus.yml
 #------------------------------------------------------------------------------
 
-FROM gcr.io/sonarqube-team/base:mvn-jdk-11
+FROM us.gcr.io/sonarqube-team/base:j11-m3-latest
 
 ARG ANT_VERSION=1.10.8
 
 USER root
 
 RUN cd /opt/ && \
-    wget https://downloads.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    curl -O -L https://downloads.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
     tar -zxvf apache-ant-${ANT_VERSION}-bin.tar.gz && \
     mv apache-ant-${ANT_VERSION} ant && \
     ANT_HOME=/opt/ant && \
