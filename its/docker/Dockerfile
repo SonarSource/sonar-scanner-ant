@@ -18,7 +18,7 @@ ARG ANT_VERSION=1.10.8
 USER root
 
 RUN cd /opt/ && \
-    wget https://downloads.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    curl -O -L https://downloads.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
     tar -zxvf apache-ant-${ANT_VERSION}-bin.tar.gz && \
     mv apache-ant-${ANT_VERSION} ant && \
     ANT_HOME=/opt/ant && \
