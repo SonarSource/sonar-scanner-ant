@@ -74,7 +74,7 @@ qa_task:
     cpu: 1.7
     memory: 5Gb
     docker_arguments:
-      ANT_VERSION: 1.10.8
+      ANT_VERSION: 1.10.10
   env:
     matrix:
       - SQ_VERSION: LATEST_RELEASE[7.9]
