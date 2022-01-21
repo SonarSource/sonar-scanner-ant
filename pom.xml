@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>59.0.29</version>
+    <version>60.0.52</version>
     <relativePath />
   </parent>
 
@@ -78,7 +78,7 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <configuration>
-	          <source>8</source>
+            <source>8</source>
           </configuration>
         </plugin>  
       </plugins>

@@ -13,6 +13,10 @@
   <name>SonarSource :: IT :: Ant task</name>
   <inceptionYear>2009</inceptionYear>
 
+  <properties>
+    <maven.compiler.release>8</maven.compiler.release>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
