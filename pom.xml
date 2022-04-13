@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>60.0.52</version>
+    <version>61.0.147</version>
     <relativePath />
   </parent>
 
@@ -68,7 +68,7 @@
 
   <properties>
     <gitRepositoryName>sonar-scanner-ant</gitRepositoryName>
-    <artifactsToPublish>${project.groupId}:sonarqube-ant-task:jar</artifactsToPublish>
+    <artifactsToPublish>${project.groupId}:sonarqube-ant-task:jar,${project.groupId}:${project.artifactId}:json:cyclonedx</artifactsToPublish>
   </properties>
 
   <build>
@@ -83,6 +83,20 @@
         </plugin>  
       </plugins>
     </pluginManagement>	   
+    <plugins>
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>makeAggregateBom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>	
   
   <profiles>
