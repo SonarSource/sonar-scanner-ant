@@ -68,7 +68,7 @@
 
   <properties>
     <gitRepositoryName>sonar-scanner-ant</gitRepositoryName>
-    <artifactsToPublish>${project.groupId}:sonarqube-ant-task:jar,${project.groupId}:${project.artifactId}:json:cyclonedx</artifactsToPublish>
+    <artifactsToPublish>${project.groupId}:sonarqube-ant-task:jar,${project.groupId}:sonarqube-ant-task:json:cyclonedx</artifactsToPublish>
   </properties>
 
   <build>
