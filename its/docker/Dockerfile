@@ -11,15 +11,15 @@
 # AWS ECR. See section "eks_container" of .cirrus.yml
 #------------------------------------------------------------------------------
 
-ARG CIRRUS_AWS_ACCOUNT
+ARG CIRRUS_AWS_ACCOUNT=275878209202
 FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j11-m3-latest
 
-ARG ANT_VERSION=1.10.8
+ARG ANT_VERSION=1.10.12
 
 USER root
 
 RUN cd /opt/ && \
-    curl -O -L https://downloads.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    curl -O -L https://downloads.apache.org/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
     tar -zxvf apache-ant-${ANT_VERSION}-bin.tar.gz && \
     mv apache-ant-${ANT_VERSION} ant && \
     ANT_HOME=/opt/ant && \
