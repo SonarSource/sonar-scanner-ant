@@ -8,10 +8,11 @@
 #   docker run -it sonar-scanner-ant-qa bash
 #
 # CirrusCI builds the image when needed. No need to manually upload it to
-# Google Cloud Container Registry. See section "gke_container" of .cirrus.yml
+# AWS ECR. See section "eks_container" of .cirrus.yml
 #------------------------------------------------------------------------------
 
-FROM us.gcr.io/sonarqube-team/base:j11-m3-latest
+ARG CIRRUS_AWS_ACCOUNT
+FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j11-m3-latest
 
 ARG ANT_VERSION=1.10.8
 
