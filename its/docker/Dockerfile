@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 
 ARG CIRRUS_AWS_ACCOUNT=275878209202
-FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j11-m3-latest
+FROM ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-m3-latest
 
 ARG ANT_VERSION=1.10.12
 
