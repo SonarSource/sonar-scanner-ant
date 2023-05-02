@@ -23,9 +23,7 @@ RUN cd /opt/ && \
     tar -zxvf apache-ant-${ANT_VERSION}-bin.tar.gz && \
     mv apache-ant-${ANT_VERSION} ant && \
     ANT_HOME=/opt/ant && \
-    PATH=$PATH:${ANT_HOME}/bin && \
-    cd ant && \
-    ant -f fetch.xml -Ddest=system
+    PATH=$PATH:${ANT_HOME}/bin
 
 USER sonarsource
 
