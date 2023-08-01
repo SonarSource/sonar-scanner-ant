@@ -105,7 +105,7 @@ qa_task:
     memory: 5Gb
   env:
     matrix:
-      - SQ_VERSION: LATEST_RELEASE[8.9]
+      - SQ_VERSION: LATEST_RELEASE[9.9]
       - SQ_VERSION: DEV
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
