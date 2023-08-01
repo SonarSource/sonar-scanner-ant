@@ -1,8 +1,13 @@
 SonarQube Scanner for Ant
 =========================
-[![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonar-scanner-ant.svg)](https://cirrus-ci.com/github/SonarSource/sonar-scanner-ant)
 
-Documentation:
+# Deprecated
+
+> :warning: SonarQube Scanner for Ant is deprecated. You should use the [SonarScanner CLI](https://github.com/SonarSource/sonar-scanner-cli) instead.
+
+This repository is no longer maintained and has been deprecated.
+
+# Documentation
 http://redirect.sonarsource.com/doc/ant-task.html
 
 Have Question or Feedback?
