@@ -93,7 +93,7 @@ qa_task:
     dockerfile: its/docker/Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-      ANT_VERSION: 1.10.12
+      ANT_VERSION: 1.10.13
     cluster_name: ${CIRRUS_CLUSTER_NAME}
     builder_role: cirrus-builder
     builder_image: docker-builder-v*
