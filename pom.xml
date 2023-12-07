@@ -28,29 +28,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>godin</id>
-      <name>Evgeny Mandrikov</name>
-      <timezone>+3</timezone>
-    </developer>
-    <developer>
-      <id>simon.brandhof</id>
-      <name>Simon Brandhof</name>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>bellingard</id>
-      <name>Fabrice Bellingard</name>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>henryju</id>
-      <name>Julien Henry</name>
-      <timezone>+1</timezone>
-    </developer>
-  </developers>
-
   <modules>
     <module>sonarqube-ant-task</module>
   </modules>
@@ -95,6 +72,7 @@
             </goals>
           </execution>
         </executions>
+        <version>2.7.10</version>
       </plugin>
     </plugins>
   </build>	
