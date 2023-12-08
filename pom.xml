@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>65.0.218</version>
+    <version>70.0.0.270</version>
     <relativePath />
   </parent>
 
@@ -72,7 +72,6 @@
             </goals>
           </execution>
         </executions>
-        <version>2.7.10</version>
       </plugin>
     </plugins>
   </build>	
